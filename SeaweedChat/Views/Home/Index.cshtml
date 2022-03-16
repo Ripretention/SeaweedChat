@@ -1,8 +1,16 @@
-﻿@{
+﻿@model SeaweedChat.Infrastructure.Models.User
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome to SeaweedChat</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <h1 class="display-4">Welcome back, @Model.Username<br />to SeaweedChat</h1>
+    }
+    else
+    {
+        <h1 class="display-4">Welcome to SeaweedChat</h1>
+        <p>For using SeaweedChat you should to <a asp-area="" asp-controller="Account" asp-action="Register">register</a>.</p>
+    }
 </div>
