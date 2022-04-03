@@ -5,19 +5,16 @@ using System.Linq;
 using SeaweedChat.Infrastructure;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using SeaweedChat.Models;
 
 namespace SeaweedChat.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> logger;
         private readonly ApplicationContext context;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationContext context)
+        public HomeController(ApplicationContext context)
         {
-            this.logger = logger;
             this.context = context;
         }
 

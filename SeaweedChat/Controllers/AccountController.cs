@@ -22,16 +22,47 @@ namespace SeaweedChat.Controllers
             this.logger = logger;
             this.context = context;
         }
-            
+
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Settings()
+        {
+            long userId;
+            Infrastructure.Models.User user = null;
+            if (User.Identity.IsAuthenticated && long.TryParse(User.Identity.Name, out userId))
+            {
+                user = await context.Users.FindAsync(userId);
+                if (user == null) return View();
+            }
+
+            ViewData["UserName"] = user.Username;
+            return View(new UpdateSettingsModel
+            {
+                Email = user.Email,
+                Username = user.Username
+            });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login([FromForm] LoginModel login)
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                ModelState.AddModelError("Password", "You are already logged in");
+                return View(login);
+            }
+
             logger.LogInformation($"User <{login.Username}> is logging...");
             var user = await context.Users.FirstOrDefaultAsync(usr => usr.Username == login.Username);
 
@@ -58,20 +89,54 @@ namespace SeaweedChat.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        [HttpGet]
-        public IActionResult Register()
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateSettings([FromForm] UpdateSettingsModel update)
         {
-            return View();
+            long userId;
+            Infrastructure.Models.User user;
+            if (long.TryParse(User.Identity.Name, out userId))
+                user = await context.Users.FindAsync(userId);
+            else
+                return RedirectToAction("Login", "Account");
+
+            if (update.ConfirmPassword != null && user.Password != update.ConfirmPassword)
+                ModelState.AddModelError("ConfirmPassword", "Wrong password. Try it again.");
+            else if (update.Username != null && user.Username != update.Username && await context.Users.AnyAsync(usr => usr.Username == update.Username))
+                ModelState.AddModelError("Username", "Username is occupied");
+            else if (update.Email != null && user.Email != update.Email && await context.Users.AnyAsync(usr => usr.Email == update.Email))
+                ModelState.AddModelError("Email", "Email is occupied");
+
+            if (ModelState.IsValid)
+            {
+                if (update.Username != null && user.Username != update.Username)
+                    user.Username = update.Username;
+                if (update.Email != null && user.Email != update.Email)
+                    user.Email = update.Email;
+                if (update.Password != null && user.Password != update.Password)
+                    user.Password = update.Password;
+
+                await context.SaveChangesAsync();
+            }
+
+            return View("Settings", update);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register([FromForm] RegisterModel reg)
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                ModelState.AddModelError("Email", "You are already logged in");
+                return View(reg);
+            }
+
             logger.LogInformation($"User <{reg.Username}|{reg.Email}> is registering");
 
             if (await context.Users.AnyAsync(usr => usr.Email == reg.Email))
                 ModelState.AddModelError("Email", "User with the same email already registered");
-            if (await context.Users.AnyAsync(usr => usr.Username == reg.Username))
+            else if (await context.Users.AnyAsync(usr => usr.Username == reg.Username))
                 ModelState.AddModelError("Username", "User with the same username already registered");
 
             if (ModelState.IsValid)
@@ -91,7 +156,6 @@ namespace SeaweedChat.Controllers
 
             return View(reg);
         }
-
         private async Task Authenticate(long userId)
         {
             var claims = new List<Claim>

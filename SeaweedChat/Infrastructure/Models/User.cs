@@ -13,6 +13,8 @@ namespace SeaweedChat.Infrastructure.Models
         public string Email { get; set; }
         [MaxLength(32)]
         public string Username { get; set; }
+        [DataType(DataType.Password)]
+        [MaxLength(256, ErrorMessage = "Max length for password is 256")]
         public string Password { get; set; }
     }
 }

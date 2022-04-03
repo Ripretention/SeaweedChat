@@ -1,6 +1,7 @@
 ﻿@model SeaweedChat.Infrastructure.Models.User
 @{
     ViewData["Title"] = "Home Page";
+    ViewData["UserName"] = Model?.Username ?? "";
 }
 
 <div class="text-center">

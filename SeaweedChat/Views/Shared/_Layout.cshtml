@@ -21,22 +21,25 @@
                 <li class="nav-item">
                     <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Profile" asp-action="Index">Profile</a>
-                </li>
                 @if (User.Identity.IsAuthenticated)
                 {
-                    <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            @(ViewData?["UserName"] ?? "Profile")
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Settings">Settings</a>
+                            <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Logout">Log out</a>
+                        </div>
                     </li>
                 }
                 else
                 {
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                        <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login">Log in</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-success" asp-area="" asp-controller="Account" asp-action="Register">Registration</a>
+                        <a class="nav-link btn btn-success" asp-area="" asp-controller="Account" asp-action="Register">Sing up</a>
                     </li>
                 }
             </ul>
