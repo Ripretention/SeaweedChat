@@ -6,6 +6,7 @@ namespace SeaweedChat.Infrastructure
     public class ApplicationContext : DbContext
     {
         public DbSet<Models.User> Users { get; set; }
+        public DbSet<Models.Message> Messages { get; set; }
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
             : base(options)
         {

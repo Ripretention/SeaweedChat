@@ -1,4 +1,27 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model SeaweedChat.Models.ChatHubModel;
+
+@{
+    ViewData["Title"] = "Messages";
 }
-<h1 class="display-4">This is messages page</h1>
+
+<div class="messanger">
+    <div class="chat-list">
+        <div class="chat-search-box form-outline">
+            <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search" />
+        </div>
+    </div>
+    <div class="message-box">
+        <div class="message-box-header">
+            <a>Test chat</a>
+        </div>
+        <div class="message">
+            <div class="message-author">John</div>
+            <div class="message-body">Hello there!</div>
+        </div>
+    </div>
+</div>
+
+@section Styles 
+{
+    <link src="~/css/chat.css"/>
+} 

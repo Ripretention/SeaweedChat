@@ -9,8 +9,9 @@ namespace SeaweedChat.Models
         [RegularExpression(@"[a-zA-Z0-9_]+", ErrorMessage = "Username containse invalid symbols")]
         public string Username { get; set; }
 
-        [Required(ErrorMessage = "Please enter password")]
         [DataType(DataType.Password)]
+        [Required(ErrorMessage = "Please enter password")]
+        [MaxLength(256, ErrorMessage = "Max length for password is 256")]
         public string Password { get; set; }
     }
 }
