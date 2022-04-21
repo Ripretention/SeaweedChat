@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using SeaweedChat.Infrastructure;
-using Microsoft.Extensions.Logging;
+using SeaweedChat.Infrastructure.Models;
 using Microsoft.AspNetCore.Authorization;
 
 
@@ -22,16 +22,29 @@ namespace SeaweedChat.Controllers
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            long userId;
-            Infrastructure.Models.User user = null;
-            if (User.Identity.IsAuthenticated && long.TryParse(User.Identity.Name, out userId))
-            {
-                user = await context.Users.FindAsync(userId);
-                if (user == null) return View();
-            }
-
+            User user = await context.Users.FindAsync(long.Parse(User.Identity.Name));
             ViewData["UserName"] = user.Username;
-            return View();
+
+            var lastMessages = context.Messages
+                .Where(msg => msg.Peer.Id == user.Id)
+                .ToList()
+                .GroupBy(msg => msg.Peer.Id)
+                .Select(groupedMsg => groupedMsg.OrderByDescending(msg => msg.Date).FirstOrDefault())
+                .Where(msg => msg != null)
+                .OrderByDescending(msg => msg.Date)
+                .Take(10);
+
+            var model = new List<Models.ChatPreviewModel>();
+            foreach (var message in lastMessages)
+                model.Add(new Models.ChatPreviewModel
+                {
+                    Id = message.Owner.Id,
+                    LastMessage = TimeSpan.FromSeconds(Math.Abs(DateTime.Now.Second - message.Date.Second)),
+                    Text = message.Text.Substring(0, 512).Trim(),
+                    isSelected = false
+                });
+
+            return View(model);
         }
     }
 }

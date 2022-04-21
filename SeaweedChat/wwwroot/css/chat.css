@@ -1,9 +1,13 @@
-﻿.messanger {
+﻿/* build your own custom Bootstrap theme:
+   https://themestr.app
+*/
+.messanger {
     background: #ffac34;
     display: flex;
     align-items: stretch;
     flex-direction: row;
     justify-content: flex-start;
+    height: 83vh;
 }
 
 .chat-search-box > input {
@@ -36,12 +40,34 @@
     max-width: 70%;
 }
 
+.message-welcome-box {
+    border-top: 24px solid #18242c;
+    border-left: 2px solid #1c2430;
+    display: flex;
+    background: #3e4e59;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 70%;
+}
+
 .message-box-header {
     text-align: center;
     color: #ffac34;
     font-size: 24px;
     background: #18242c;
 }
+
+.message-box-footer {
+    width: 100%;
+}
+
+    .message-box-footer > div > input,
+    .message-box-footer > div > input:focus {
+        border: 0;
+        color: white;
+        background: #384c54;
+    }
 
 .message {
     display: flex;

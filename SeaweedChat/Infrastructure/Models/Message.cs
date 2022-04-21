@@ -7,10 +7,11 @@ namespace SeaweedChat.Infrastructure.Models
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key, Column(Order = 0)]
-        public int Id { get; private set; }
+        public long Id { get; private set; }
         public User Owner { get; set; }
         public User Peer { get; set; }
         public string Text { get; set; }
         public bool isReaded { get; set; }
+        public System.DateTime Date { get; set; }
     }
 }
