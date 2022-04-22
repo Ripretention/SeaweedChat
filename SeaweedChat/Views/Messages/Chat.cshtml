@@ -1,0 +1,46 @@
+﻿@model SeaweedChat.Models.ChatModel;
+
+@{
+    ViewData["Title"] = "Messages";
+}
+
+<div class="messanger">
+    <div class="chat-list">
+        <div class="chat-search-box form-outline">
+            <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search" />
+        </div>
+
+        @foreach (var preview in Model.ChatPreviews)
+        {
+            <div class="chat-preview">
+                <p>@preview.Text</p>
+            </div>
+        }
+    </div>
+    <div class="message-box">
+        <div class="message-box-header">
+            <a>@Model.Title</a>
+        </div>
+        <div class="message">
+            @foreach (var message in Model.Messages)
+            {
+                <div class="message-author">@message.Owner.Username</div>
+                <div class="message-body">@message.Text</div>
+            }
+
+        </div>
+        <div class="message-box-footer mt-auto">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Message">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/css/chat.css" />
+} 

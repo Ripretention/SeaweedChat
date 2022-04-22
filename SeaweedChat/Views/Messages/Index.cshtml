@@ -18,7 +18,17 @@
         }
     </div>
     <div class="message-welcome-box">
-        <button type="button" class="btn btn-outline-success btn-lg">Start Chat</button>
+        <form asp-action="RedirectToChat" method="get" enctype="application/x-www-form-urlencoded">
+            <div class="input-group w-25">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">@@</span>
+                </div>
+                <input type="text" name="username" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-success">Start Chat</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 
