@@ -23,12 +23,31 @@ namespace SeaweedChat.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await context.Users.FindAsync(long.Parse(User.Identity.Name));
-            var lastMessages = getLastUserMessages(user);
             ViewData["UserName"] = user.Username;
 
-            var model = constructChatPreviews(lastMessages);
-
+            var model = getUserChatPreviews(user);
             return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<long?> SendMessage([FromForm] MessageParams @params)
+        {
+            var user = await context.Users.FindAsync(long.Parse(User.Identity.Name));
+            var chat = user?.Chats.FirstOrDefault(chat => chat.Id == @params.ChatId);
+            if (user == null || chat == null)
+                return null;
+
+            var message = await context.Messages.AddAsync(new Message()
+            {
+                Date = DateTime.Now,
+                isReaded = false,
+                Owner = user,
+                Text = @params.Text
+            });
+
+            await context.SaveChangesAsync();
+            return message.Entity.Id;
         }
 
         [HttpGet]
@@ -36,23 +55,17 @@ namespace SeaweedChat.Controllers
         public async Task<IActionResult> Chat(long id)
         {
             var user = await context.Users.FindAsync(long.Parse(User.Identity.Name));
-            var lastMessages = getLastUserMessages(user, 40);
+            var chat = user.Chats?.FirstOrDefault(chat => chat.Id == id);
+            if (user == null || chat == null)
+                return NotFound();
             ViewData["UserName"] = user.Username;
-
-            var lastChatMessages = context.Messages
-               .Where(msg => (msg.Owner.Id == user.Id && msg.Peer.Id == id) || (msg.Peer.Id == user.Id && msg.Owner.Id == id))
-               .OrderByDescending(msg => msg.Date)
-               .Take(50);
 
             Models.ChatModel model = new Models.ChatModel
             {
                 Id = id,
-                Messages = lastMessages,
-                Members = lastChatMessages
-                    .Select(msg => new[] { msg.Owner, msg.Peer })
-                    .SelectMany(mbr => mbr)
-                    .Distinct(),
-                ChatPreviews = constructChatPreviews(lastMessages),
+                Messages = getChatLastMessages(chat),
+                Members = chat.Members,
+                ChatPreviews = getUserChatPreviews(user),
                 Title = (await context.Users.FindAsync(id))?.Username ?? "Empty Chat"
             };
 
@@ -61,36 +74,59 @@ namespace SeaweedChat.Controllers
 
         [HttpGet]
         [Authorize]
-        public IActionResult RedirectToChat(string username)
+        public async Task<IActionResult> RedirectToChat(string username)
         {
+            var currentUser = await context.Users.FindAsync(long.Parse(User.Identity.Name));
             var user = context.Users.FirstOrDefault(usr => usr.Username == username);
-            return user == null
-                ? RedirectToAction("Index", "Messages")
-                : RedirectToAction("Chat", "Messages", new { Id = user.Id.ToString() });
-        }
+            if (currentUser == null || user == null || currentUser == user)
+                return RedirectToAction("Index", "Messages");
 
-        private IEnumerable<Models.ChatPreviewModel> constructChatPreviews(IEnumerable<Message> lastMessages)
-        {
-            var model = new List<Models.ChatPreviewModel>();
-            foreach (var message in lastMessages)
-                model.Add(new Models.ChatPreviewModel
+            long chatId;
+            var chat = currentUser?.Chats?.FirstOrDefault(chat => chat.Members.Count() == 2 && chat.Members.Contains(user));
+            if (chat == null)
+            {
+                var createdChat = await context.Chats.AddAsync(new Chat
                 {
-                    Id = message.Owner.Id,
-                    LastMessage = TimeSpan.FromSeconds(Math.Abs(DateTime.Now.Second - message.Date.Second)),
-                    Text = message.Text.Substring(0, 512).Trim(),
-                    isSelected = false
+                    Members = new[] { currentUser, user },
+                    Messages = null
                 });
 
+                await context.SaveChangesAsync();
+                chatId = createdChat.Entity.Id;
+            }
+            else
+                chatId = chat.Id;
+
+            return RedirectToAction("Chat", "Messages", new { Id = chatId.ToString() });
+        }
+
+        private IEnumerable<Models.ChatPreviewModel> getUserChatPreviews(User user)
+        {
+            var model = new List<Models.ChatPreviewModel>();
+            foreach (var chat in user.Chats ?? Array.Empty<Chat>())
+            {
+                var lastMessage = chat.Messages.OrderByDescending(msg => msg.Date).First();
+                model.Add(new Models.ChatPreviewModel
+                {
+                    Id = chat.Id,
+                    LastMessage = TimeSpan.FromSeconds((DateTime.Now - lastMessage.Date).Seconds),
+                    Text = lastMessage.Text.Substring(0, 512).Trim(),
+                    isSelected = false
+                });
+            }
             return model;
         }
-        private IEnumerable<Message> getLastUserMessages(User user, int count = 10) =>
-           context.Messages
-               .Where(msg => msg.Peer.Id == user.Id || msg.Owner.Id == user.Id)
-               .ToList()
-               .GroupBy(msg => msg.Peer.Id == user.Id ? msg.Peer.Id : msg.Owner.Id)
-               .Select(groupedMsg => groupedMsg.OrderByDescending(msg => msg.Date).FirstOrDefault())
-               .Where(msg => msg != null)
-               .OrderByDescending(msg => msg.Date)
-               .Take(Math.Abs(count));
+
+        public IEnumerable<Message> getChatLastMessages(Chat chat, int count = 50, int offset = 0) => context.Messages
+            .Where(msg => msg.Chat == chat)
+            .OrderByDescending(msg => msg.Date)
+            .Skip(Math.Abs(offset))
+            .Take(Math.Abs(count));
+    }
+
+    public class MessageParams
+    {
+        public string Text { get; set; }
+        public long ChatId { get; set; }
     }
 }

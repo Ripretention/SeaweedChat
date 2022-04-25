@@ -23,9 +23,13 @@ namespace SeaweedChat.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 long userId;
-                return long.TryParse(User.Identity.Name, out userId)
-                    ? View(await context.Users.FindAsync(userId))
-                    : View();
+                if (!long.TryParse(User.Identity.Name, out userId))
+                    return RedirectToAction("Logout", "Account");
+                var user = await context.Users.FindAsync(userId);
+                if (user == null)
+                    return RedirectToAction("Logout", "Account");
+
+                return View(user);
             }
 
             return View();

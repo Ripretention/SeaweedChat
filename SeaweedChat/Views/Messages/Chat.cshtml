@@ -31,14 +31,38 @@
         </div>
         <div class="message-box-footer mt-auto">
             <div class="input-group">
-                <input type="text" class="form-control" placeholder="Message">
+                <input id="message-text-area" type="text" class="form-control" placeholder="Message">
                 <div class="input-group-append">
-                    <button class="btn btn-primary" type="button">Send</button>
+                    <button onclick="messageSend" id="message-send-btn" class="btn btn-primary" type="button">Send</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts 
+{
+    <script>
+        function messageSend() {
+            let formData = new FormData();
+            formData.append("PeerId", @Model.Id,);
+            formData.append("Text", $("#message-text-area").val());
+
+            $("#message-text-area").val("");
+
+            fetch("@Url.Action("SendMessage", "Messages")", {
+                method: "POST",
+                body: formData
+            });
+        };
+
+        $("#message-text-area").keypress(e => {
+            let enterIsPressed = e.keyCode === 13;
+            if (enterIsPressed)
+                messageSend();
+        });
+    </script>
+}
 
 @section Styles
 {
