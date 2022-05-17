@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace SeaweedChat.Controllers
             var user = await context.Users.FindAsync(long.Parse(User.Identity.Name));
             ViewData["UserName"] = user.Username;
 
-            var model = getUserChatPreviews(user);
+            var model = await getUserChatPreviews(user);
             return View(model);
         }
 
@@ -41,6 +42,7 @@ namespace SeaweedChat.Controllers
             var message = await context.Messages.AddAsync(new Message()
             {
                 Date = DateTime.Now,
+                Chat = chat,
                 isReaded = false,
                 Owner = user,
                 Text = @params.Text
@@ -60,12 +62,13 @@ namespace SeaweedChat.Controllers
                 return NotFound();
             ViewData["UserName"] = user.Username;
 
+            await context.Entry(chat).Collection(p => p.Members).LoadAsync();
             Models.ChatModel model = new Models.ChatModel
             {
                 Id = id,
                 Messages = getChatLastMessages(chat),
                 Members = chat.Members,
-                ChatPreviews = getUserChatPreviews(user),
+                ChatPreviews = await getUserChatPreviews(user),
                 Title = (await context.Users.FindAsync(id))?.Username ?? "Empty Chat"
             };
 
@@ -93,6 +96,11 @@ namespace SeaweedChat.Controllers
 
                 await context.SaveChangesAsync();
                 chatId = createdChat.Entity.Id;
+                await SendMessage(new MessageParams
+                {
+                    ChatId = chatId,
+                    Text = "Hello!"
+                });
             }
             else
                 chatId = chat.Id;
@@ -100,17 +108,18 @@ namespace SeaweedChat.Controllers
             return RedirectToAction("Chat", "Messages", new { Id = chatId.ToString() });
         }
 
-        private IEnumerable<Models.ChatPreviewModel> getUserChatPreviews(User user)
+        private async Task<IEnumerable<Models.ChatPreviewModel>> getUserChatPreviews(User user)
         {
             var model = new List<Models.ChatPreviewModel>();
             foreach (var chat in user.Chats ?? Array.Empty<Chat>())
             {
+                await context.Entry(chat).Collection(p => p.Messages).LoadAsync();
                 var lastMessage = chat.Messages.OrderByDescending(msg => msg.Date).First();
                 model.Add(new Models.ChatPreviewModel
                 {
                     Id = chat.Id,
                     LastMessage = TimeSpan.FromSeconds((DateTime.Now - lastMessage.Date).Seconds),
-                    Text = lastMessage.Text.Substring(0, 512).Trim(),
+                    Text = lastMessage.Text.Substring(0, lastMessage.Text.Length > 512 ? 512 : lastMessage.Text.Length).Trim(),
                     isSelected = false
                 });
             }

@@ -14,13 +14,13 @@ namespace SeaweedChat.Infrastructure
             Database.EnsureCreated();
         }
 
-       /* protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Models.Chat>()
-                .HasMany(t => t.Members)
-                .WithMany(t => t.Chats)
-                .UsingEntity(t => t.ToTable("ChatMembers"));
-                
-        }*/
+            modelBuilder.Entity<Models.User>()
+                .Navigation(e => e.Chats)
+                .AutoInclude();
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
