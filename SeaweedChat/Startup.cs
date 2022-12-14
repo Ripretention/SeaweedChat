@@ -24,9 +24,9 @@ namespace SeaweedChat
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationContext>(options => 
-                options.UseSqlite(Configuration.GetConnectionString("ApplicationDatabase"))
-            );
+            // services.AddDbContext<ApplicationContext>(options => 
+            //     options.UseSqlite(Configuration.GetConnectionString("ApplicationDatabase"))
+            // );
             services
                 .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>

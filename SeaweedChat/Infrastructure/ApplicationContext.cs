@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Sqlite;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft;
 
 namespace SeaweedChat.Infrastructure
 {
