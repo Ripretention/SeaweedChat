@@ -1,7 +1,7 @@
 namespace SeaweedChat.Domain.Aggregates;
 public class Entity : IEquatable<Entity>
 {
-    public Guid Id { get; protected set; }
+    public Guid Id { get; protected set; } = new Guid();
 
     public bool Equals(Entity? obj) => 
         obj != null && obj.Id == Id;

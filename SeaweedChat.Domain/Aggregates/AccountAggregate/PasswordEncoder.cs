@@ -2,7 +2,7 @@ using System.Text;
 using System.Security.Cryptography;
 namespace SeaweedChat.Domain.Aggregates;
 
-public class PasswordEncoder
+public class PasswordEncoder : IPasswordEncoder
 {
     private readonly byte[] _salt;
     public PasswordEncoder(string salt)

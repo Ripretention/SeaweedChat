@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using SeaweedChat.Infra;
+using SeaweedChat.Infra.Repositories;
+using SeaweedChat.Domain.Aggregates;
+using Microsoft.EntityFrameworkCore.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
@@ -22,44 +26,23 @@ namespace SeaweedChat
 
         public void ConfigureServices(IServiceCollection services)
         {
-            // services.AddDbContext<ApplicationContext>(options => 
-            //     options.UseSqlite(Configuration.GetConnectionString("ApplicationDatabase"))
-            // );
             services
-                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
-                });
-            services.AddControllersWithViews();
+                .AddDbContext<ApplicationContext>(options => 
+                    options.UseSqlite(":memory:")
+                )
+                .AddSingleton<IPasswordEncoder>(new PasswordEncoder("test salt"))
+                .AddScoped<IAccountRepository, AccountRepository>()
+                .AddControllers();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-            
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-
             app.UseRouting();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
-                    name: "Default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}"
+                    name: "API",
+                    pattern: "api/{controller}/{action}/{id?}"
                 );
             });
         }

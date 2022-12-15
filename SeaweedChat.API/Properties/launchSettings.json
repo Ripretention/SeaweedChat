@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "SeaweedChat": {
+    "SeaweedChat.API": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
