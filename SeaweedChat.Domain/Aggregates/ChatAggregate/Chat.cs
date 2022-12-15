@@ -10,9 +10,9 @@ public class Chat : Entity
 
     public bool AddMember(User usr) => 
         _members.Add(usr ?? throw new ArgumentNullException(nameof(usr)));
-    public User GetUser(User usr) =>
+    public User GetMember(User usr) =>
         Members.First(u => u == usr);
-    public bool RemoveUser(User usr) =>
+    public bool RemoveMember(User usr) =>
         _members.Remove(usr ?? throw new ArgumentNullException(nameof(usr)));
 
     public bool AddMessage(Message msg)

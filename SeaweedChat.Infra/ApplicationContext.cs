@@ -4,6 +4,7 @@ namespace SeaweedChat.Infra;
 
 public class ApplicationContext : DbContext
 {
+    public DbSet<Account> Accounts { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Chat> Chats { get; set; }
     public DbSet<Message> Messages { get; set; }
