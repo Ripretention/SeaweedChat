@@ -8,39 +8,48 @@ namespace SeaweedChat.API.Controllers;
 [ApiController]
 public class AccountController : ControllerBase
 {
-    private readonly IAccountRepository _repository;
+    private readonly IAccountRepository _accRepository;
+    private readonly IUserRepository _usrRepository;
     private readonly IPasswordEncoder _encoder;
     public AccountController(
-        IAccountRepository repository,
+        IAccountRepository accRepository,
+        IUserRepository usrRepostiroy,
         IPasswordEncoder encoder
     )
     {
-        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _accRepository = accRepository ?? throw new ArgumentNullException(nameof(accRepository));
+        _usrRepository = usrRepostiroy ?? throw new ArgumentNullException(nameof(usrRepostiroy));
         _encoder = encoder;
     }
 
     [HttpPut]
-    public async Task<ActionResult<bool>> AddAccount(AddAccountRequest request)
+    public async Task<ActionResult<AddAccountResponse>> AddAccount(AddAccountRequest request)
     {
-        if (_repository.HasAccount(request.Email))
-            return BadRequest("Account already exist");
-        
         try 
         {
-            await _repository.Add(new Account()
+            var user = await _usrRepository.Add(new User()
+            {
+                Username = request.Username
+            });
+            var account = await _accRepository.Add(new Account()
             {
                 Email = request.Email,
                 Password = request.Password,
-                User = new User()
-                {
-                    Username = request.Username
-                }
+                User = user
             });
-            return true;
+            return Ok(new AddAccountResponse
+            {
+                Result = true,
+                Message = $"Account #{account.Id} successfully added"
+            });
         }
-        catch
+        catch (ArgumentException e)
         {
-            return false;
+            return BadRequest(new AddAccountResponse
+            {
+                Result = false,
+                Message = e.Message
+            });
         }
     }
 }

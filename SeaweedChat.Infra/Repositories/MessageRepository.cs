@@ -37,13 +37,13 @@ public class MessageRepository : IMessageRepository
     }
     public async Task<Message> Add(Message msg)
     {
-        _logger?.LogInformation($"add message {msg.Id}");
         if (msg.Chat == null)
             throw new ArgumentNullException(nameof(msg.Chat));
         if (msg.Owner == null)
             throw new ArgumentNullException(nameof(msg.Owner));
 
         var entity = (await _context.Messages.AddAsync(msg)).Entity;
+        _logger?.LogInformation($"add message {entity.Id}");
         await _context.SaveChangesAsync();
 
         return entity;

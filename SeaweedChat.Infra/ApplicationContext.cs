@@ -18,6 +18,7 @@ public class ApplicationContext : DbContext
         modelBuilder.Entity<Account>(a =>
         {
             a.HasKey(p => p.Id);
+            a.HasOne(p => p.User);
             a.Property("_password");
         });
         modelBuilder.Entity<Chat>(c =>

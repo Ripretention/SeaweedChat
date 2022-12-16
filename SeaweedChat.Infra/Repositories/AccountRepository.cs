@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SeaweedChat.Domain.Aggregates;
 using Microsoft.Extensions.Logging;
 namespace SeaweedChat.Infra.Repositories;
@@ -18,7 +19,17 @@ public class AccountRepository : IAccountRepository
     public async Task<Account?> Get(Guid id)
     {
         _logger?.LogInformation($"get account {id}");
-        return await _context.Accounts.FindAsync(id);
+        return await _context.Accounts
+            .Include(u => u.User)
+            .FirstOrDefaultAsync(a => a.Id == id);
+    }
+
+    public async Task<Account?> GetByEmail(string email)
+    {
+        _logger?.LogInformation($"get account by email <{email}>");
+        return await _context.Accounts
+            .Include(u => u.User)
+            .FirstOrDefaultAsync(a => a.Email == email);
     }
 
     public async Task<bool> Remove(Account account)
@@ -37,19 +48,19 @@ public class AccountRepository : IAccountRepository
     }
     public async Task<Account> Add(Account account)
     {
-        _logger?.LogInformation($"add account {account.Id}");
-        if (HasAccount(account.Email))
-            throw new ArgumentException($"accout with such email already exist");
+        if (await HasAccount(account.Email))
+            throw new ArgumentException("Accout with such email already exist");
 
         var entity = (await _context.Accounts.AddAsync(account)).Entity;
+        _logger?.LogInformation($"add account {entity.Id}");
         await _context.SaveChangesAsync();
 
         return entity;
     }
-    public bool HasAccount(string email)
+    public async Task<bool> HasAccount(string email)
     {
         _logger?.LogInformation($"looking for account by email <{email}>");
-        return email != null && _context.Accounts.Any(acc => acc.Email == email);
+        return email != null && await _context.Accounts.AnyAsync(acc => acc.Email == email);
     }
     public async Task<bool> Update()
     {

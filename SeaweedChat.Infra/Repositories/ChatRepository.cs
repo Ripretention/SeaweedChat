@@ -37,8 +37,8 @@ public class ChatRepository : IChatRepository
     }
     public async Task<Chat> Add(Chat chat)
     {
-        _logger?.LogInformation($"add chat {chat.Id}");
         var entity = (await _context.Chats.AddAsync(chat)).Entity;
+        _logger?.LogInformation($"add chat {entity.Id}");
         await _context.SaveChangesAsync();
 
         return entity;

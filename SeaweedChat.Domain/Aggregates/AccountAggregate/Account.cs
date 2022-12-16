@@ -6,7 +6,6 @@ public class Account : Entity
     public string Email { get; set; } = null!;
     public string Password
     {
-        get => _password;
         set
         {
             _password = value;
@@ -16,5 +15,5 @@ public class Account : Entity
     private string _password = null!;
 
     public bool VerifyPassword(string password) =>
-        Password == password;
+        _password == password;
 }

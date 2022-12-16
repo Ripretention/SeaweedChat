@@ -35,10 +35,19 @@ public class UserRepository : IUserRepository
             return false;
         }
     }
+
+    public bool HasUser(string username)
+    {
+        _logger?.LogInformation($"looking for user by username <{username}>");
+        return username != null && _context.Users.Any(acc => acc.Username == username);
+    }
     public async Task<User> Add(User usr)
     {
-        _logger?.LogInformation($"add user {usr.Id}");
+        if (HasUser(usr.Username))
+            throw new ArgumentException("User with such username already exist");
+
         var entity = (await _context.Users.AddAsync(usr)).Entity;
+         _logger?.LogInformation($"add user {entity.Id}");
         await _context.SaveChangesAsync();
 
         return entity;
