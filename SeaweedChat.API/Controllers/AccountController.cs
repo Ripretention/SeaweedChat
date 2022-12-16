@@ -19,12 +19,6 @@ public class AccountController : ControllerBase
         _encoder = encoder;
     }
 
-    [HttpGet]
-    public ActionResult<string> Test()
-    {
-        return "lol!";
-    }
-
     [HttpPut]
     public async Task<ActionResult<bool>> AddAccount(AddAccountRequest request)
     {

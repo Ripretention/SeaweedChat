@@ -23,8 +23,12 @@ public class ApplicationContext : DbContext
         modelBuilder.Entity<Chat>(c =>
         {
             c.HasKey(p => p.Id);
-            c.Property("_members");
-            c.Property("_messages");
+            c.HasMany(p => p.Members)
+                .WithOne()
+                .Metadata?.PrincipalToDependent?.SetPropertyAccessMode(PropertyAccessMode.Field);
+            c.HasMany(p => p.Messages)
+                .WithOne()
+                .Metadata?.PrincipalToDependent?.SetPropertyAccessMode(PropertyAccessMode.Field);
         });
         modelBuilder.Entity<User>(u =>
         {
@@ -32,10 +36,14 @@ public class ApplicationContext : DbContext
         });
         modelBuilder.Entity<Message>(m => 
         {
-            m.HasKey(m => m.Id);
-            m.Property(m => m.Chat);
-            m.Property(m => m.Owner);
-            m.Property(m => m.Text).HasMaxLength(4096);
+            m.HasKey(p => p.Id);
+            m.HasOne(p => p.Chat)
+                .WithMany()
+                .HasForeignKey(p => p.Id);
+            m.HasOne(p => p.Owner)
+                .WithMany()
+                .HasForeignKey(p => p.Id);
+            m.Property(p => p.Text).HasMaxLength(4096);
         });
     }
 }

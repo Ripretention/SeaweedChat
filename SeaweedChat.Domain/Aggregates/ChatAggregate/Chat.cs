@@ -3,13 +3,19 @@ namespace SeaweedChat.Domain.Aggregates;
 
 public class Chat : Entity
 {
-    public ImmutableHashSet<User> Members { get => _members.ToImmutableHashSet(); }
-    private HashSet<User> _members = new HashSet<User>();
+    public IReadOnlyCollection<User> Members { get => _members.AsReadOnly(); }
+    private List<User> _members = new List<User>();
     public ImmutableHashSet<Message> Messages { get => _messages.ToImmutableHashSet(); }
     private HashSet<Message> _messages = new HashSet<Message>();
 
-    public bool AddMember(User usr) => 
+    public bool AddMember(User usr)
+    {
+        if (_members.Contains(usr))
+            return false;
+
         _members.Add(usr ?? throw new ArgumentNullException(nameof(usr)));
+        return true;
+    }
     public User GetMember(User usr) =>
         Members.First(u => u == usr);
     public bool RemoveMember(User usr) =>

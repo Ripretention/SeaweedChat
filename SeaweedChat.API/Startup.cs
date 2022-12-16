@@ -28,7 +28,7 @@ namespace SeaweedChat
         {
             services
                 .AddDbContext<ApplicationContext>(options => 
-                    options.UseSqlite(":memory:")
+                    options.UseSqlite("Filename=:memory:")
                 )
                 .AddSingleton<IPasswordEncoder>(new PasswordEncoder("test salt"))
                 .AddScoped<IAccountRepository, AccountRepository>()
