@@ -25,8 +25,6 @@ public class AuthController : ControllerBase
         _logger = logger;
     }
 
-    
-
     [HttpGet("token")]
     public async Task<ActionResult<AddAccountResponse>> GetAuthToken(GetTokenRequest request)
     {

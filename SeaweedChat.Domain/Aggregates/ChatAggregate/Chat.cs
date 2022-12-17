@@ -3,6 +3,8 @@ namespace SeaweedChat.Domain.Aggregates;
 
 public class Chat : Entity
 {
+    public string Title { get; set; } = null!;
+    public ChatType Type { get; set; } = ChatType.Dialoge;
     public IReadOnlyCollection<User> Members { get => _members.AsReadOnly(); }
     private List<User> _members = new List<User>();
     public ImmutableHashSet<Message> Messages { get => _messages.ToImmutableHashSet(); }
@@ -11,6 +13,8 @@ public class Chat : Entity
     public bool AddMember(User usr)
     {
         if (_members.Contains(usr))
+            return false;
+        if (Type == ChatType.Dialoge && _members.Count >= 2)
             return false;
 
         _members.Add(usr ?? throw new ArgumentNullException(nameof(usr)));

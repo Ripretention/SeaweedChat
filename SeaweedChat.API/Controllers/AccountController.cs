@@ -4,22 +4,19 @@ using Microsoft.AspNetCore.Authentication;
 using SeaweedChat.API.Models;
 namespace SeaweedChat.API.Controllers;
 
-[Route("api/account")]
+[Route("api/[controller]s")]
 [ApiController]
 public class AccountController : ControllerBase
 {
     private readonly IAccountRepository _accRepository;
     private readonly IUserRepository _usrRepository;
-    private readonly IPasswordEncoder _encoder;
     public AccountController(
         IAccountRepository accRepository,
-        IUserRepository usrRepostiroy,
-        IPasswordEncoder encoder
+        IUserRepository usrRepostiroy
     )
     {
         _accRepository = accRepository ?? throw new ArgumentNullException(nameof(accRepository));
         _usrRepository = usrRepostiroy ?? throw new ArgumentNullException(nameof(usrRepostiroy));
-        _encoder = encoder;
     }
 
     [HttpPut]
