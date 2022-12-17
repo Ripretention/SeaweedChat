@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace SeaweedChat.API.Controllers;
 
-[Route("api/auth")]
+[Route("api/Auth")]
 [ApiController]
 public class AuthController : ControllerBase
 {
@@ -25,8 +25,8 @@ public class AuthController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet("token")]
-    public async Task<ActionResult<AddAccountResponse>> GetAuthToken(GetTokenRequest request)
+    [HttpGet("Token")]
+    public async Task<ActionResult<AddAccountResponse>> GetAuthToken([FromQuery] GetTokenRequest request)
     {
         _logger.LogInformation($"{Request.HttpContext.Connection.RemoteIpAddress} requests JWT-Token");
 
