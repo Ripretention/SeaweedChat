@@ -10,7 +10,6 @@ public class ChatController : ApiController
     private readonly ILogger<ChatController>? _logger;
     private readonly IUserRepository _usrRepository;
     private readonly IChatRepository _chatRepository;
-    private readonly IPasswordEncoder _encoder;
     public ChatController(
         IUserRepository usrRepository,
         IChatRepository chatRepository,
@@ -22,10 +21,27 @@ public class ChatController : ApiController
         _logger = logger;
     }
 
+    [HttpGet]
+    public async Task<ActionResult<GetAllResponse>> GetAll()
+    {
+        var user = await _usrRepository.Get(CurrentUserId ?? Guid.Empty);
+        if (user == null)
+            return BadRequest(new AddChatResponse
+            {
+                Message = "Unknown user"
+            });
+
+        return Ok(new GetAllResponse
+        {
+            Result = true,
+            Chats = await _chatRepository.GetAllByUser(user)
+        });
+    }
+
     [HttpPut]
     public async Task<ActionResult<AddChatResponse>> AddChat(AddChatRequest request)
     {
-        var user = _usrRepository.Get(CurrentUserId ?? Guid.Empty);
+        var user = await _usrRepository.Get(CurrentUserId ?? Guid.Empty);
         if (user == null)
             return BadRequest(new AddChatResponse
             {
@@ -35,11 +51,13 @@ public class ChatController : ApiController
         Chat chat;
         try 
         {
-            chat = await _chatRepository.Add(new Chat()
+            chat = new Chat()
             {
                 Title = request.Title,
                 Type = request.Type
-            });
+            };
+            chat.AddMember(user);
+            chat = await _chatRepository.Add(chat);
         }
         catch (Exception e)
         {

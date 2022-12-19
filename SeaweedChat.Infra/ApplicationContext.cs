@@ -8,6 +8,7 @@ public class ApplicationContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Chat> Chats => Set<Chat>();
     public DbSet<Message> Messages => Set<Message>();
+
     public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
     {
         Database.EnsureCreated();
@@ -25,11 +26,11 @@ public class ApplicationContext : DbContext
         {
             c.HasKey(p => p.Id);
             c.HasMany(p => p.Members)
-                .WithOne()
-                .Metadata?.PrincipalToDependent?.SetPropertyAccessMode(PropertyAccessMode.Field);
+                .WithMany()
+                .UsingEntity("ChatMembers");
             c.HasMany(p => p.Messages)
-                .WithOne()
-                .Metadata?.PrincipalToDependent?.SetPropertyAccessMode(PropertyAccessMode.Field);
+                .WithOne(p => p.Chat)
+                .OnDelete(DeleteBehavior.Cascade);
         });
         modelBuilder.Entity<User>(u =>
         {

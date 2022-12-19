@@ -40,7 +40,7 @@ namespace SeaweedChat
                     ValidIssuer = Configuration["Jwt:Issuer"],
                     ValidateLifetime = true,
                     ValidateAudience = true,
-                    ValidAudience =  Configuration["Jwt:Issuer"],
+                    ValidAudience =  Configuration["Jwt:Audience"],
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["Jwt:Key"] ?? "the most secret key"))
                 };

@@ -1,5 +1,6 @@
 using SeaweedChat.Domain.Aggregates;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 namespace SeaweedChat.Infra.Repositories;
 
 public class ChatRepository : IChatRepository
@@ -13,6 +14,15 @@ public class ChatRepository : IChatRepository
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _logger = logger;
+    }
+
+    public async Task<ICollection<Chat>> GetAllByUser(User user)
+    {
+        _logger?.LogInformation($"get all user #{user.Id} chats");
+        return await _context.Chats
+            .Include(c => c.Members)
+            .Where(c => c.Members.Contains(user))
+            .ToListAsync();
     }
 
     public async Task<Chat?> Get(Guid id)
