@@ -1,37 +1,34 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30406.217
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SeaweedChat.API", "SeaweedChat\SeaweedChat.API.csproj", "{191BD9F0-5E47-422A-A7A7-812CF4172F5B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaweedChat.API", "SeaweedChat.API\SeaweedChat.API.csproj", "{F30C70F8-0CCC-4A9A-9972-AB49DA468F5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaweedChat.Infra", "SeaweedChat.Infra\SeaweedChat.Infra.csproj", "{08FAA62B-8122-4E2C-833C-4CF6BA599FC3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaweedChat.Domain", "SeaweedChat.Domain\SeaweedChat.Domain.csproj", "{D5C4D9E9-854F-43E5-AAB5-622053F467E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaweedChat.Domain", "SeaweedChat.Domain\SeaweedChat.Domain.csproj", "{55A2F420-6AD4-45EA-8D9B-65AF7558367B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaweedChat.Infra", "SeaweedChat.Infra\SeaweedChat.Infra.csproj", "{F6BF330F-41EC-407E-8A2C-B95DABCB5E02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{191BD9F0-5E47-422A-A7A7-812CF4172F5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{191BD9F0-5E47-422A-A7A7-812CF4172F5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{191BD9F0-5E47-422A-A7A7-812CF4172F5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{191BD9F0-5E47-422A-A7A7-812CF4172F5B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{08FAA62B-8122-4E2C-833C-4CF6BA599FC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{08FAA62B-8122-4E2C-833C-4CF6BA599FC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{08FAA62B-8122-4E2C-833C-4CF6BA599FC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{08FAA62B-8122-4E2C-833C-4CF6BA599FC3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{55A2F420-6AD4-45EA-8D9B-65AF7558367B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{55A2F420-6AD4-45EA-8D9B-65AF7558367B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{55A2F420-6AD4-45EA-8D9B-65AF7558367B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{55A2F420-6AD4-45EA-8D9B-65AF7558367B}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {7130E9A0-0F3C-4007-B38E-9689AE0AD99E}
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F30C70F8-0CCC-4A9A-9972-AB49DA468F5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F30C70F8-0CCC-4A9A-9972-AB49DA468F5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F30C70F8-0CCC-4A9A-9972-AB49DA468F5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F30C70F8-0CCC-4A9A-9972-AB49DA468F5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5C4D9E9-854F-43E5-AAB5-622053F467E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5C4D9E9-854F-43E5-AAB5-622053F467E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5C4D9E9-854F-43E5-AAB5-622053F467E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5C4D9E9-854F-43E5-AAB5-622053F467E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6BF330F-41EC-407E-8A2C-B95DABCB5E02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6BF330F-41EC-407E-8A2C-B95DABCB5E02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6BF330F-41EC-407E-8A2C-B95DABCB5E02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6BF330F-41EC-407E-8A2C-B95DABCB5E02}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

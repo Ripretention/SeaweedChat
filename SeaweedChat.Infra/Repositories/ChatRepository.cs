@@ -16,7 +16,7 @@ public class ChatRepository : IChatRepository
         _logger = logger;
     }
 
-    public async Task<ICollection<Chat>> GetAllByUser(User user)
+    public async Task<ICollection<Chat>> GetAllUserChats(User user)
     {
         _logger?.LogInformation($"get all user #{user.Id} chats");
         return await _context.Chats
@@ -29,6 +29,15 @@ public class ChatRepository : IChatRepository
     {
         _logger?.LogInformation($"get chat {id}");
         return await _context.Chats.FindAsync(id);
+    }
+    public async Task<Chat?> GetUserChat(Guid id, User user)
+    {
+        _logger?.LogInformation($"get chat {id} of user #{user.Id} chats");
+        return await _context.Chats
+            .Include(c => c.Members)
+            .Where(c => c.Members.Contains(user))
+            .Include(c => c.Messages)
+            .FirstAsync(c => c.Id == id);
     }
 
     public async Task<bool> Remove(Chat chat)

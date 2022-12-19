@@ -1,40 +1,61 @@
 using SeaweedChat.Domain.Aggregates;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using SeaweedChat.API.Models;
 namespace SeaweedChat.API.Controllers;
 
+[Route("api/[controller]s")]
 public class ChatController : ApiController
 {
-    private readonly ILogger<ChatController>? _logger;
-    private readonly IUserRepository _usrRepository;
     private readonly IChatRepository _chatRepository;
     public ChatController(
-        IUserRepository usrRepository,
         IChatRepository chatRepository,
+        IUserRepository usrRepository,
         ILogger<ChatController> logger
-    )
+    ) : base(logger, usrRepository)
     {
-        _usrRepository = usrRepository ?? throw new ArgumentNullException(nameof(usrRepository));
         _chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
-        _logger = logger;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<GetAllResponse>> GetAll()
+
+    [HttpGet("{ChatId:guid}")]
+    public async Task<ActionResult<GetChatResponse>> GetChat(Guid chatId)
     {
         var user = await _usrRepository.Get(CurrentUserId ?? Guid.Empty);
         if (user == null)
-            return BadRequest(new AddChatResponse
+            return BadRequest(new GetChatResponse
+            {
+                Message = "Unknown user"
+            });
+        var chat = await _chatRepository.GetUserChat(chatId, user);
+        if (chat == null)
+            return BadRequest(new GetChatResponse
+            {
+                Message = "Unknown chat"
+            });
+
+        return Ok(new GetChatResponse
+        {
+            Result = true,
+            Message = "Success",
+            Chat = chat
+        });
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<GetAllChatsResponse>> GetAllChats()
+    {
+        var user = await _usrRepository.Get(CurrentUserId ?? Guid.Empty);
+        if (user == null)
+            return BadRequest(new GetAllChatsResponse
             {
                 Message = "Unknown user"
             });
 
-        return Ok(new GetAllResponse
+        return Ok(new GetAllChatsResponse
         {
             Result = true,
-            Chats = await _chatRepository.GetAllByUser(user)
+            Message = "Success",
+            Chats = await _chatRepository.GetAllUserChats(user)
         });
     }
 

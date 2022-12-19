@@ -40,11 +40,9 @@ public class ApplicationContext : DbContext
         {
             m.HasKey(p => p.Id);
             m.HasOne(p => p.Chat)
-                .WithMany()
-                .HasForeignKey(p => p.Id);
+                .WithMany();
             m.HasOne(p => p.Owner)
-                .WithMany()
-                .HasForeignKey(p => p.Id);
+                .WithMany();
             m.Property(p => p.Text).HasMaxLength(4096);
         });
     }
