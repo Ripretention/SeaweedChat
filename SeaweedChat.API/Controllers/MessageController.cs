@@ -31,9 +31,8 @@ public class MessageController : ApiController
         }
     }
 
-
-    [HttpGet("{MsgId:Guid}")]
-    public async Task<ActionResult<GetMessageResponse>> Get(Guid msgId)
+    [HttpGet]
+    public async Task<ActionResult<GetMessageResponse>> Get([FromQuery] Guid msgId)
     {
         var user = await _usrRepository.Get(CurrentUserId ?? Guid.Empty);
         if (user == null)

@@ -16,7 +16,6 @@ public class ChatController : ApiController
         _chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
     }
 
-
     [HttpGet("{ChatId:guid}")]
     public async Task<ActionResult<GetChatResponse>> GetChat(Guid chatId)
     {

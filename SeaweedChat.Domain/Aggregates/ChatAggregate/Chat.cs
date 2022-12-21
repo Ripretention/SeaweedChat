@@ -7,8 +7,6 @@ public class Chat : Entity
     public ChatType Type { get; set; } = ChatType.Dialoge;
     public IReadOnlyCollection<User> Members { get => _members.AsReadOnly(); }
     private List<User> _members = new List<User>();
-    public IReadOnlyCollection<Message> Messages { get => _messages.AsReadOnly(); }
-    private List<Message> _messages = new List<Message>();
 
     public bool AddMember(User usr)
     {
@@ -24,17 +22,4 @@ public class Chat : Entity
         Members.First(u => u == usr);
     public bool RemoveMember(User usr) =>
         _members.Remove(usr ?? throw new ArgumentNullException(nameof(usr)));
-
-    public bool AddMessage(Message msg)
-    {
-        if (msg == null)
-            throw new ArgumentNullException(nameof(msg));
-        if (msg.Chat != this)
-            throw new ArgumentException("Message doesn't belong the chat");
-        if (_messages.Contains(msg))
-            return false;
-
-        _messages.Add(msg);
-        return true;
-    }
 }

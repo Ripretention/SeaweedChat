@@ -36,7 +36,6 @@ public class ChatRepository : IChatRepository
         return await _context.Chats
             .Include(c => c.Members)
             .Where(c => c.Members.Contains(user))
-            .Include(c => c.Messages)
             .FirstAsync(c => c.Id == id);
     }
 
