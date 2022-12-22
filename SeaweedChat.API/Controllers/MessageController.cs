@@ -19,28 +19,76 @@ public class MessageController : ApiController
         _msgRepository = msgRepository ?? throw new ArgumentNullException(nameof(msgRepository));
     }
 
-    public Guid? CurrentChatId
+    public Guid CurrentChatId
     {
         get 
         {
-            Guid id; 
-            Guid.TryParse((string?)RouteData.Values.FirstOrDefault(v => v.Key == "ChatId").Value ?? "", out id);
-            return id == Guid.Empty
-                ? null
-                : id;
+            Guid.TryParse((string?)RouteData.Values.FirstOrDefault(v => v.Key == "ChatId").Value ?? "", out Guid chatId);
+            return chatId;
         }
     }
 
-    [HttpGet]
-    public async Task<ActionResult<GetMessageResponse>> Get([FromQuery] Guid msgId)
+    [HttpPost("{msgId:guid}")]
+    public async Task<ActionResult<EditMessageResponse>> EditMessage([FromRoute] Guid msgId, [FromBody] EditMessageRequest request)
     {
-        var user = await _usrRepository.Get(CurrentUserId ?? Guid.Empty);
+        var chat = await _chatRepository.Get(CurrentChatId);
+        if (chat?.Members?.All(m => m.Id != CurrentUserId) ?? true)
+            return BadRequest(new EditMessageResponse
+            {
+                Message = "Unknown chat"
+            });
+        var msg = await _msgRepository.Get(msgId);
+        if (msg == null || msg.Chat.Id != CurrentChatId)
+            return BadRequest(new EditMessageResponse
+            {
+                Message = "Unknown message"
+            });
+
+        if (request.Text != null)
+            msg.Text = request.Text;
+
+        await _chatRepository.Update();
+        return Ok(new EditMessageResponse
+        {
+            Result = true,
+            Message = "Success"
+        });
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<GetAllMessageResponse>> GetMessages([FromQuery] int offset = 0, [FromQuery] int limit = 200)
+    {
+        var user = await _usrRepository.Get(CurrentUserId);
+        if (user == null)
+            return BadRequest(new GetAllMessageResponse
+            {
+                Message = "Unknown user"
+            });
+        var chat = await _chatRepository.GetUserChat(CurrentChatId, user);
+        if (chat == null)
+            return BadRequest(new GetAllMessageResponse
+            {
+                Message = "Unknown chat"
+            });
+
+        var messages = await _msgRepository.GetChatMessages(chat, offset, limit);
+        return Ok(new GetAllMessageResponse
+        {
+            Result = true,
+            Message = "Success",
+            Messages = messages
+        });
+    }
+    [HttpGet("{msgId:guid}")]
+    public async Task<ActionResult<GetMessageResponse>> GetMessage(Guid msgId)
+    {
+        var user = await _usrRepository.Get(CurrentUserId);
         if (user == null)
             return BadRequest(new GetMessageResponse
             {
                 Message = "Unknown user"
             });
-        var chat = await _chatRepository.GetUserChat(CurrentChatId ?? Guid.Empty, user);
+        var chat = await _chatRepository.GetUserChat(CurrentChatId, user);
         if (chat == null)
             return BadRequest(new GetMessageResponse
             {
@@ -64,13 +112,13 @@ public class MessageController : ApiController
     [HttpPut]
     public async Task<ActionResult<AddMessageResponse>> AddMessage([FromBody] AddMessageRequest request)
     {
-        var user = await _usrRepository.Get(CurrentUserId ?? Guid.Empty);
+        var user = await _usrRepository.Get(CurrentUserId);
         if (user == null)
             return BadRequest(new AddMessageResponse
             {
                 Message = "Unknown user"
             });
-        var chat = await _chatRepository.GetUserChat(CurrentChatId ?? Guid.Empty, user);
+        var chat = await _chatRepository.GetUserChat(CurrentChatId, user);
         if (chat == null)
             return BadRequest(new AddMessageResponse
             {
@@ -80,7 +128,7 @@ public class MessageController : ApiController
         var message = await _msgRepository.Add(new Message 
         {
             Chat = chat,
-            Date = DateTime.Now,
+            CreatedAt = DateTime.Now,
             Owner = user,
             Text = request.Text
         });

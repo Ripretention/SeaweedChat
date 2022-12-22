@@ -27,15 +27,19 @@ public class MessageRepository : IMessageRepository
         int offset = 0, 
         int limit = 200
     )
-    {
+    {        
         limit = Math.Abs(limit);
+        _logger?.LogInformation($"get messages of chat #{chat.Id}, offset={offset}, limit={limit}");
+
         if (limit > 400)
             throw new ArgumentException("The limit maximum is 400");
 
         return await _context.Messages
-            .Where(c => c.Id == chat.Id)
-            .Skip(offset)
-            .Take(limit)
+            .AsNoTracking()
+            .Where(m => m.Chat.Id == chat.Id)
+            .OrderByDescending(c => c.CreatedAt)
+            .Take(limit - Math.Abs(offset))
+            .Include(m => m.Owner)
             .ToListAsync();
     }
 

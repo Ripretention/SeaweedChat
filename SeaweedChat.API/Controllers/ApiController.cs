@@ -19,15 +19,12 @@ public class ApiController : ControllerBase
         _logger = logger;
     }
 
-    protected Guid? CurrentUserId
+    protected Guid CurrentUserId
     {
         get
         {
-            Guid userId;
-            Guid.TryParse(User.Claims.FirstOrDefault(u => u.Type == "UserId")?.Value ?? "", out userId);
-            return userId == Guid.Empty
-                ? null
-                : userId;
-        }
+            Guid.TryParse(User.Claims.FirstOrDefault(u => u.Type == "UserId")?.Value ?? "", out Guid userId);
+            return userId;
+        }        
     }
 }

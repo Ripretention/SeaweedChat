@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 namespace SeaweedChat.Domain.Aggregates;
 
 public class Chat : Entity

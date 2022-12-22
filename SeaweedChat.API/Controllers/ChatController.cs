@@ -19,7 +19,7 @@ public class ChatController : ApiController
     [HttpGet("{ChatId:guid}")]
     public async Task<ActionResult<GetChatResponse>> GetChat(Guid chatId)
     {
-        var user = await _usrRepository.Get(CurrentUserId ?? Guid.Empty);
+        var user = await _usrRepository.Get(CurrentUserId);
         if (user == null)
             return BadRequest(new GetChatResponse
             {
@@ -43,7 +43,7 @@ public class ChatController : ApiController
     [HttpGet]
     public async Task<ActionResult<GetAllChatsResponse>> GetAllChats()
     {
-        var user = await _usrRepository.Get(CurrentUserId ?? Guid.Empty);
+        var user = await _usrRepository.Get(CurrentUserId);
         if (user == null)
             return BadRequest(new GetAllChatsResponse
             {
@@ -61,7 +61,7 @@ public class ChatController : ApiController
     [HttpPut]
     public async Task<ActionResult<AddChatResponse>> AddChat(AddChatRequest request)
     {
-        var user = await _usrRepository.Get(CurrentUserId ?? Guid.Empty);
+        var user = await _usrRepository.Get(CurrentUserId);
         if (user == null)
             return BadRequest(new AddChatResponse
             {

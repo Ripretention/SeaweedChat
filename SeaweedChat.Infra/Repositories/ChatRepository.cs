@@ -28,7 +28,9 @@ public class ChatRepository : IChatRepository
     public async Task<Chat?> Get(Guid id)
     {
         _logger?.LogInformation($"get chat {id}");
-        return await _context.Chats.FindAsync(id);
+        return await _context.Chats
+            .Include(c => c.Members)
+            .FirstOrDefaultAsync(c => c.Id == id);
     }
     public async Task<Chat?> GetUserChat(Guid id, User user)
     {
