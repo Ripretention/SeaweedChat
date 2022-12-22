@@ -2,28 +2,21 @@ using SeaweedChat.Domain.Aggregates;
 using Microsoft.Extensions.Logging;
 namespace SeaweedChat.Infra.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository : Repository, IUserRepository
 {
-    private ApplicationContext _context;
-    private ILogger<UserRepository>? _logger;
-    public UserRepository(
-        ApplicationContext context,
-        ILogger<UserRepository>? logger
-    )
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _logger = logger;
-    }
+    public UserRepository(ApplicationContext context, ILogger<ChatRepository> logger)
+        : base(context, logger)
+    {}
 
     public async Task<User?> Get(Guid id)
     {
-        _logger?.LogInformation($"get user {id}");
+        _logger?.LogInformation($"get user by id <{id}>");
         return await _context.Users.FindAsync(id);
     }
 
     public async Task<bool> Remove(User usr)
     {
-        _logger?.LogInformation($"remove user #{usr.Id}");
+        _logger?.LogInformation($"remove {usr}");
         try 
         {
             _context.Users.Remove(usr);
@@ -47,14 +40,9 @@ public class UserRepository : IUserRepository
             throw new ArgumentException("User with such username already exist");
 
         var entity = (await _context.Users.AddAsync(usr)).Entity;
-         _logger?.LogInformation($"add user {entity.Id}");
+         _logger?.LogInformation($"add {entity}");
         await _context.SaveChangesAsync();
 
         return entity;
-    }
-    public async Task<bool> Update()
-    {
-        _logger?.LogInformation($"update");
-        return (await _context.SaveChangesAsync()) > 0;
     }
 }

@@ -8,4 +8,8 @@ public class Entity : IEquatable<Entity>
     public override bool Equals(object? obj) => 
         obj != null && GetType() == obj.GetType() && base.Equals((Entity)obj);
     public override int GetHashCode() => Id.GetHashCode();
+    public override string ToString()
+    {
+        return GetType().Name + $"-{Id}";
+    }
 }

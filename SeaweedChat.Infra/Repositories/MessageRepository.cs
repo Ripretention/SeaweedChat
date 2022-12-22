@@ -3,22 +3,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 namespace SeaweedChat.Infra.Repositories;
 
-public class MessageRepository : IMessageRepository
+public class MessageRepository : Repository, IMessageRepository
 {
-    private ApplicationContext _context;
-    private ILogger<MessageRepository>? _logger;
-    public MessageRepository(
-        ApplicationContext context,
-        ILogger<MessageRepository>? logger
-    )
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _logger = logger;
-    }
+    public MessageRepository(ApplicationContext context, ILogger<ChatRepository> logger)
+        : base(context, logger)
+    {}
 
     public async Task<Message?> Get(Guid id)
     {
-        _logger?.LogInformation($"get message {id}");
+        _logger?.LogInformation($"get message by id <{id}>");
         return await _context.Messages.FindAsync(id);
     }
 
@@ -29,7 +22,7 @@ public class MessageRepository : IMessageRepository
     )
     {        
         limit = Math.Abs(limit);
-        _logger?.LogInformation($"get messages of chat #{chat.Id}, offset={offset}, limit={limit}");
+        _logger?.LogInformation($"get messages of {chat}, offset={offset}, limit={limit}");
 
         if (limit > 400)
             throw new ArgumentException("The limit maximum is 400");
@@ -45,7 +38,7 @@ public class MessageRepository : IMessageRepository
 
     public async Task<bool> Remove(Message msg)
     {
-        _logger?.LogInformation($"remove message #{msg.Id}");
+        _logger?.LogInformation($"remove {msg}");
         try 
         {
             _context.Messages.Remove(msg);
@@ -65,14 +58,9 @@ public class MessageRepository : IMessageRepository
             throw new ArgumentNullException(nameof(msg.Owner));
 
         var entity = (await _context.Messages.AddAsync(msg)).Entity;
-        _logger?.LogInformation($"add message {entity.Id}");
+        _logger?.LogInformation($"add {entity} for {msg.Chat}");
         await _context.SaveChangesAsync();
 
         return entity;
-    }
-    public async Task<bool> Update()
-    {
-        _logger?.LogInformation($"update");
-        return (await _context.SaveChangesAsync()) > 0;
     }
 }

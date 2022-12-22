@@ -8,10 +8,10 @@ namespace SeaweedChat.API.Controllers;
 [ApiController]
 public class ApiController : ControllerBase
 {
-    protected readonly ILogger<ChatController>? _logger;
+    protected readonly ILogger? _logger;
     protected readonly IUserRepository _usrRepository;
     public ApiController(
-        ILogger<ChatController> logger,
+        ILogger logger,
         IUserRepository usrRepository
     )
     {

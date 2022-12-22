@@ -45,7 +45,10 @@ public class MessageController : ApiController
             });
 
         if (request.Text != null)
+        {
             msg.Text = request.Text;
+            msg.EditAt = DateTime.Now;
+        }
 
         await _chatRepository.Update();
         return Ok(new EditMessageResponse

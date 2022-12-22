@@ -3,22 +3,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 namespace SeaweedChat.Infra.Repositories;
 
-public class ChatRepository : IChatRepository
+public class ChatRepository : Repository, IChatRepository
 {
-    private ApplicationContext _context;
-    private ILogger<ChatRepository>? _logger;
-    public ChatRepository(
-        ApplicationContext context,
-        ILogger<ChatRepository>? logger
-    )
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _logger = logger;
-    }
-
+    public ChatRepository(ApplicationContext context, ILogger<ChatRepository> logger)
+        : base(context, logger)
+    {}
     public async Task<ICollection<Chat>> GetAllUserChats(User user)
     {
-        _logger?.LogInformation($"get all user #{user.Id} chats");
+        _logger?.LogInformation($"get {user} chats");
         return await _context.Chats
             .Include(c => c.Members)
             .Where(c => c.Members.Contains(user))
@@ -27,14 +19,14 @@ public class ChatRepository : IChatRepository
 
     public async Task<Chat?> Get(Guid id)
     {
-        _logger?.LogInformation($"get chat {id}");
+        _logger?.LogInformation($"get chat by id <{id}>");
         return await _context.Chats
             .Include(c => c.Members)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
     public async Task<Chat?> GetUserChat(Guid id, User user)
     {
-        _logger?.LogInformation($"get chat {id} of user #{user.Id} chats");
+        _logger?.LogInformation($"get {user} chat by id <{id}>");
         return await _context.Chats
             .Include(c => c.Members)
             .Where(c => c.Members.Contains(user))
@@ -43,7 +35,7 @@ public class ChatRepository : IChatRepository
 
     public async Task<bool> Remove(Chat chat)
     {
-        _logger?.LogInformation($"remove chat #{chat.Id}");
+        _logger?.LogInformation($"remove {chat}");
         try 
         {
             _context.Chats.Remove(chat);
@@ -58,14 +50,9 @@ public class ChatRepository : IChatRepository
     public async Task<Chat> Add(Chat chat)
     {
         var entity = (await _context.Chats.AddAsync(chat)).Entity;
-        _logger?.LogInformation($"add chat {entity.Id}");
+        _logger?.LogInformation($"add {entity}");
         await _context.SaveChangesAsync();
 
         return entity;
-    }
-    public async Task<bool> Update()
-    {
-        _logger?.LogInformation($"update");
-        return (await _context.SaveChangesAsync()) > 0;
     }
 }

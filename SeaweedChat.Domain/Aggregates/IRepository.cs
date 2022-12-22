@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace SeaweedChat.Domain.Aggregates;
 public interface IRepository<T> 
 {
