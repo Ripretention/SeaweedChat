@@ -25,6 +25,7 @@ public class ApplicationContext : DbContext
         modelBuilder.Entity<Chat>(c =>
         {
             c.HasKey(p => p.Id);
+            c.Property(p => p.Title).HasMaxLength(128);
             c.HasMany(p => p.Members)
                 .WithMany()
                 .UsingEntity("ChatMembers");
