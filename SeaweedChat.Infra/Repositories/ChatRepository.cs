@@ -24,14 +24,6 @@ public class ChatRepository : Repository, IChatRepository
             .Include(c => c.Members)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
-    public async Task<Chat?> GetUserChat(Guid id, User user)
-    {
-        _logger?.LogInformation($"get {user} chat by id <{id}>");
-        return await _context.Chats
-            .Include(c => c.Members)
-            .Where(c => c.Members.Contains(user))
-            .FirstAsync(c => c.Id == id);
-    }
 
     public async Task<bool> Remove(Chat chat)
     {

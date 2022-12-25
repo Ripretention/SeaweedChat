@@ -19,14 +19,8 @@ public class ChatController : ApiController
     [HttpGet("{ChatId:guid}")]
     public async Task<ActionResult<GetChatResponse>> GetChat(Guid chatId)
     {
-        var user = await _usrRepository.Get(CurrentUserId);
-        if (user == null)
-            return BadRequest(new GetChatResponse
-            {
-                Message = "Unknown user"
-            });
-        var chat = await _chatRepository.GetUserChat(chatId, user);
-        if (chat == null)
+        var chat = await _chatRepository.Get(chatId);
+        if (chat?.Members?.All(m => m.Id != CurrentUserId) ?? true)
             return BadRequest(new GetChatResponse
             {
                 Message = "Unknown chat"

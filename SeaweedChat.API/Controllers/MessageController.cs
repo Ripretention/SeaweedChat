@@ -61,15 +61,9 @@ public class MessageController : ApiController
     [HttpGet]
     public async Task<ActionResult<GetAllMessageResponse>> GetMessages([FromQuery] int offset = 0, [FromQuery] int limit = 200)
     {
-        var user = await _usrRepository.Get(CurrentUserId);
-        if (user == null)
-            return BadRequest(new GetAllMessageResponse
-            {
-                Message = "Unknown user"
-            });
-        var chat = await _chatRepository.GetUserChat(CurrentChatId, user);
-        if (chat == null)
-            return BadRequest(new GetAllMessageResponse
+        var chat = await _chatRepository.Get(CurrentChatId);
+        if (chat?.Members?.All(m => m.Id != CurrentUserId) ?? true)
+            return BadRequest(new GetChatResponse
             {
                 Message = "Unknown chat"
             });
@@ -85,15 +79,9 @@ public class MessageController : ApiController
     [HttpGet("{msgId:guid}")]
     public async Task<ActionResult<GetMessageResponse>> GetMessage(Guid msgId)
     {
-        var user = await _usrRepository.Get(CurrentUserId);
-        if (user == null)
-            return BadRequest(new GetMessageResponse
-            {
-                Message = "Unknown user"
-            });
-        var chat = await _chatRepository.GetUserChat(CurrentChatId, user);
-        if (chat == null)
-            return BadRequest(new GetMessageResponse
+        var chat = await _chatRepository.Get(CurrentChatId);
+        if (chat?.Members?.All(m => m.Id != CurrentUserId) ?? true)
+            return BadRequest(new GetChatResponse
             {
                 Message = "Unknown chat"
             });
@@ -116,14 +104,9 @@ public class MessageController : ApiController
     public async Task<ActionResult<AddMessageResponse>> AddMessage([FromBody] AddMessageRequest request)
     {
         var user = await _usrRepository.Get(CurrentUserId);
-        if (user == null)
-            return BadRequest(new AddMessageResponse
-            {
-                Message = "Unknown user"
-            });
-        var chat = await _chatRepository.GetUserChat(CurrentChatId, user);
-        if (chat == null)
-            return BadRequest(new AddMessageResponse
+        var chat = await _chatRepository.Get(CurrentChatId);
+        if (user == null || (chat?.Members?.All(m => m != user) ?? true))
+            return BadRequest(new GetChatResponse
             {
                 Message = "Unknown chat"
             });
