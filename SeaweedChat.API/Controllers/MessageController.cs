@@ -111,7 +111,7 @@ public class MessageController : ApiController
                 Message = "Unknown chat"
             });
 
-        var message = await _msgRepository.Add(new Message 
+        var msg = await _msgRepository.Add(new Message 
         {
             Chat = chat,
             CreatedAt = DateTime.Now,
@@ -122,7 +122,38 @@ public class MessageController : ApiController
         return Ok(new AddMessageResponse
         {
             Result = true,
-            Message = $"Message #{message.Id} successfully added"
+            Message = $"Message #{msg.Id} successfully added"
+        });
+    }
+
+    [HttpDelete("{msgId:guid}")]
+    public async Task<ActionResult<DeleteMessageResponse>> DeleteMessage(Guid msgId)
+    {
+        var user = await _usrRepository.Get(CurrentUserId);
+        var chat = await _chatRepository.Get(CurrentChatId);
+        if (chat?.Members?.All(m => m.Id != user?.Id) ?? true)
+            return BadRequest(new DeleteMessageResponse
+            {
+                Message = "Unknown chat"
+            });
+
+        var msg = await _msgRepository.Get(msgId);
+        if (msg == null || msg.Chat != chat)
+            return BadRequest(new DeleteMessageResponse
+            {
+                Message = "Unknown message"
+            });
+        if (msg.Owner != user)
+            return BadRequest(new DeleteMessageResponse
+            {
+                Message = "Access denied"
+            });
+
+        await _msgRepository.Remove(msg);
+        return Ok(new DeleteMessageResponse
+        {
+            Result = true,
+            Message = $"Message #{msg.Id} successfully deleted"
         });
     }
 }

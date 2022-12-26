@@ -67,8 +67,7 @@ public class ChatController : ApiController
         {
             chat = new Chat()
             {
-                Title = request.Title,
-                Type = request.Type
+                Title = request.Title
             };
             chat.AddMember(user);
             chat = await _chatRepository.Add(chat);
@@ -86,6 +85,23 @@ public class ChatController : ApiController
         {
             Result = true,
             Message = $"Chat #{chat.Id} successfully added"
+        });
+    }
+    [HttpDelete("{ChatId:guid}")]
+    public async Task<ActionResult<DeleteChatResponse>> DeleteChat(Guid chatId)
+    {
+        var chat = await _chatRepository.Get(chatId);
+        if (chat?.Members?.All(m => m.Id != CurrentUserId) ?? true)
+            return BadRequest(new DeleteChatResponse
+            {
+                Message = "Unknown chat"
+            });
+
+        await _chatRepository.Remove(chat);
+        return Ok(new DeleteChatResponse
+        {
+            Result = true,
+            Message = "Success"
         });
     }
 }

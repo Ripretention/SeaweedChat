@@ -34,7 +34,7 @@ public class AuthController : ControllerBase
         if (account == null)
             return BadRequest(new GetTokenResponse
             {
-                Message = "Account with such email doesn't exist"
+                Message = "Account with the email doesn't exist"
             });
         if (!account.VerifyPassword(request.Password))
             return BadRequest(new GetTokenResponse
