@@ -1,7 +1,6 @@
-using System.Text;
 using System.Security.Cryptography;
-namespace SeaweedChat.Domain.Aggregates;
-
+using System.Text;
+namespace SeaweedChat.API.Security;
 public class PasswordEncoder : IPasswordEncoder
 {
     private readonly byte[] _salt;
@@ -9,7 +8,6 @@ public class PasswordEncoder : IPasswordEncoder
     {
         _salt = Encoding.UTF32.GetBytes(salt);
     }
-
     public string Encode(string password)
     {
         var passwordBytes = Encoding.UTF32.GetBytes(password);

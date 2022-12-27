@@ -1,11 +1,9 @@
-using System.Text;
 using SeaweedChat.Infra;
 using Microsoft.OpenApi.Models;
 using SeaweedChat.Infra.Repositories;
 using SeaweedChat.Domain.Aggregates;
-using Microsoft.IdentityModel.Tokens;
+using SeaweedChat.API.Security;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace SeaweedChat
 {
@@ -20,31 +18,21 @@ namespace SeaweedChat
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddDbContext<ApplicationContext>(options => 
+                .AddDbContext<ApplicationContext>(options =>
                     options.UseSqlite("Filename=test.db")
                 )
-                .AddSingleton<IPasswordEncoder>(new PasswordEncoder("test salt"))
+                .AddSingleton<IAuthentication, JwtAuthentication>(s => 
+                {
+                    var auth = new JwtAuthentication(Configuration);
+                    auth.Configure(s.GetRequiredService<IServiceCollection>());
+                    return auth;
+                })
+                .AddSingleton<IPasswordEncoder>(new PasswordEncoder(Configuration["PasswordSalt"] ?? "test-salt"))
                 .AddControllers();
 
-            configureAuthentication(services);
             configureSwagger(services);
             configureRepositories(services);
         }
-        private void configureAuthentication(IServiceCollection services) => services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options => 
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = Configuration["Jwt:Issuer"],
-                    ValidateLifetime = true,
-                    ValidateAudience = true,
-                    ValidAudience =  Configuration["Jwt:Audience"],
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["Jwt:Key"] ?? "the most secret key"))
-                };
-            });
         private void configureSwagger(IServiceCollection services) => services
             .AddSwaggerGen(swagger =>
             { 
@@ -83,7 +71,10 @@ namespace SeaweedChat
             .AddScoped<IAccountRepository, AccountRepository>()
             .AddScoped<IMessageRepository, MessageRepository>();
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(
+            IApplicationBuilder app, 
+            IWebHostEnvironment env        
+        )
         {
             app.UseRouting();
             app.UseAuthentication();
