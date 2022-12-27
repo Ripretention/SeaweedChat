@@ -3,5 +3,5 @@ namespace SeaweedChat.API.Models;
 
 public class GetAllChatsResponse : Response
 {
-    public ICollection<Chat> Chats { get; set; } = new List<Chat>();
+    public IEnumerable<Chat> Chats { get; set; } = new List<Chat>();
 }

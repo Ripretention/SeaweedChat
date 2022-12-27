@@ -8,13 +8,15 @@ public class ChatRepository : Repository, IChatRepository
     public ChatRepository(ApplicationContext context, ILogger<ChatRepository> logger)
         : base(context, logger)
     {}
-    public async Task<ICollection<Chat>> GetAllUserChats(User user)
+    public async Task<ICollection<Chat>> GetAllUserChats(User? user)
     {
         _logger?.LogInformation($"get {user} chats");
+        if (user == null)
+            return Array.Empty<Chat>();
         return await _context.Chats
             .Include(c => c.Members)
             .Where(c => c.Members.Contains(user))
-            .ToListAsync();
+            .ToArrayAsync();
     }
 
     public async Task<Chat?> Get(Guid id)

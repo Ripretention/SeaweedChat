@@ -15,8 +15,8 @@ public class MessageRepository : Repository, IMessageRepository
         return await _context.Messages.FindAsync(id);
     }
 
-    public async Task<IEnumerable<Message>> GetChatMessages(
-        Chat chat, 
+    public async Task<ICollection<Message>> GetChatMessages(
+        Chat? chat, 
         int offset = 0, 
         int limit = 200
     )
@@ -24,6 +24,8 @@ public class MessageRepository : Repository, IMessageRepository
         limit = Math.Abs(limit);
         _logger?.LogInformation($"get messages of {chat}, offset={offset}, limit={limit}");
 
+        if (chat == null)
+            return Array.Empty<Message>();
         if (limit > 400)
             throw new ArgumentException("The limit maximum is 400");
 

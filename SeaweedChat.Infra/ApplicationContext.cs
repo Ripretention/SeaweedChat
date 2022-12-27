@@ -7,6 +7,7 @@ public class ApplicationContext : DbContext
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Chat> Chats => Set<Chat>();
+    public DbSet<Session> Sessions => Set<Session>();
     public DbSet<Message> Messages => Set<Message>();
 
     public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
@@ -33,6 +34,13 @@ public class ApplicationContext : DbContext
         modelBuilder.Entity<User>(u =>
         {
             u.HasKey(p => p.Id);
+        });
+        modelBuilder.Entity<Session>(s =>
+        {
+            s.HasKey(p => p.Id);
+            s.HasOne(p => p.Account)
+                .WithMany()
+                .OnDelete(DeleteBehavior.ClientCascade);
         });
         modelBuilder.Entity<Message>(m => 
         {

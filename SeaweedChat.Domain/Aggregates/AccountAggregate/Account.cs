@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 namespace SeaweedChat.Domain.Aggregates;
 
 public class Account : Entity

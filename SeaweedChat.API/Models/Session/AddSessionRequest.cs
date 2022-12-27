@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
-namespace SeaweedChat.API.Models;
-public class GetTokenRequest
-{
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; } = null!;
 
+namespace SeaweedChat.API.Models;
+public class AddSessionRequest
+{
+    [EmailAddress]
+    [Required]
+    public string Email { get; set; } = null!;
     [Required]
     [MinLength(6)]
     [MaxLength(128)]

@@ -17,16 +17,14 @@ namespace SeaweedChat
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var auth = new JwtAuthentication(Configuration);
+            auth.Configure(services);
+
             services
                 .AddDbContext<ApplicationContext>(options =>
                     options.UseSqlite("Filename=test.db")
                 )
-                .AddSingleton<IAuthentication, JwtAuthentication>(s => 
-                {
-                    var auth = new JwtAuthentication(Configuration);
-                    auth.Configure(s.GetRequiredService<IServiceCollection>());
-                    return auth;
-                })
+                .AddSingleton<IAuthentication, JwtAuthentication>(_ => auth)
                 .AddSingleton<IPasswordEncoder>(new PasswordEncoder(Configuration["PasswordSalt"] ?? "test-salt"))
                 .AddControllers();
 
@@ -69,6 +67,7 @@ namespace SeaweedChat
             .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<IChatRepository, ChatRepository>()
             .AddScoped<IAccountRepository, AccountRepository>()
+            .AddScoped<ISessionRepository, SessionRepository>()
             .AddScoped<IMessageRepository, MessageRepository>();
 
         public void Configure(
