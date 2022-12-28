@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;    
+using SeaweedChat.Domain.Aggregates;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 namespace SeaweedChat.API.Security;
 public class JwtAuthentication : IAuthentication
@@ -10,6 +11,7 @@ public class JwtAuthentication : IAuthentication
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
     }
+
     public void Configure(IServiceCollection services) => services
         .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options => 
@@ -24,7 +26,21 @@ public class JwtAuthentication : IAuthentication
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(_config["Jwt:Key"] ?? "the most secret key"))
             };
+            options.Events = configureEvents();
         });
+    private JwtBearerEvents configureEvents() => new JwtBearerEvents
+        {
+            OnTokenValidated = async ctx =>
+            {
+                Guid.TryParse(ctx.Principal?.Identity?.Name ?? "", out Guid accountId);
+                var sessions = ctx.HttpContext.RequestServices.GetRequiredService<ISessionRepository>();
+                if (await sessions.HasByAccountId(((JwtSecurityToken)ctx.SecurityToken).RawData, accountId))
+                    return;
+
+                ctx.Fail(new System.Security.Authentication.AuthenticationException("Unknown session."));
+            }
+        };
+
     public string Authenticate(IEnumerable<Claim> claims)
     {
         var claimsIdentity = new ClaimsIdentity(claims, "Token");

@@ -7,7 +7,7 @@ using SeaweedChat.API.Security;
 
 namespace SeaweedChat.API.Controllers;
 
-[Route("api/Account{AccountId:guid}/[controller]s")]
+[Route("api/Accounts/{AccountId:guid}/[controller]s")]
 [ApiController]
 public class SessionController : ControllerBase
 {

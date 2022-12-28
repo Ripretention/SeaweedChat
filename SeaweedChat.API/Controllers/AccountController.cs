@@ -1,6 +1,5 @@
 using SeaweedChat.Domain.Aggregates;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication;
 using SeaweedChat.API.Models;
 using SeaweedChat.API.Security;
 namespace SeaweedChat.API.Controllers;

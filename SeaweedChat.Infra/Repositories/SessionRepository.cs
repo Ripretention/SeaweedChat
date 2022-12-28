@@ -9,6 +9,13 @@ public class SessionRepository : Repository, ISessionRepository
         : base(context, logger)
     {}
 
+    public async Task<bool> HasByAccountId(string token, Guid accountId)
+    {
+        _logger?.LogInformation($"check session of Account-{accountId} by token: <{string.Join("", token.Take(10))}>");
+        return await _context.Sessions
+            .Where(s => s.Account.Id == accountId)
+            .AnyAsync(s => s.Token == token);
+    }
     public async Task<ICollection<Session>> GetAllAccountSessions(Account? account)
     {
         _logger?.LogInformation($"get all session of {account}");
