@@ -87,8 +87,8 @@ namespace SeaweedChat
             {
                 endpoints.MapSwagger();
                 endpoints.MapControllerRoute(
-                    name: "API",
-                    pattern: "api/{controller}s/{action}/{id?}"
+                    name: "Default",
+                    pattern: "api/v1/{controller}/{action?}/{id?}"
                 );
             });
         }

@@ -4,14 +4,14 @@ using SeaweedChat.API.Models;
 using SeaweedChat.API.Security;
 namespace SeaweedChat.API.Controllers;
 
-[Route("api/[controller]s")]
+[Route("api/v1/[controller]")]
 [ApiController]
-public class AccountController : ControllerBase
+public class AccountsController : ControllerBase
 {
     private readonly IAccountRepository _accRepository;
     private readonly IUserRepository _usrRepository;
     private readonly IPasswordEncoder? _encoder;
-    public AccountController(
+    public AccountsController(
         IAccountRepository accRepository,
         IUserRepository usrRepostiroy,
         IPasswordEncoder? encoder
@@ -23,7 +23,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<ActionResult<AddAccountResponse>> AddAccount(AddAccountRequest request)
+    public async Task<ActionResult<AddAccountResponse>> AddAccount([FromBody] AddAccountRequest request)
     {
         try 
         {
@@ -37,6 +37,7 @@ public class AccountController : ControllerBase
                 Password = _encoder?.Encode(request.Password) ?? request.Password,
                 User = user
             });
+            
             return Ok(new AddAccountResponse
             {
                 Result = true,

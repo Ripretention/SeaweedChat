@@ -3,16 +3,16 @@ using Microsoft.AspNetCore.Mvc;
 using SeaweedChat.API.Models;
 namespace SeaweedChat.API.Controllers;
 
-[Route("api/Chats/{ChatId:guid}/[controller]s")]
-public class MessageController : ApiController
+[Route("api/v1/Chats/{ChatId:guid}/[controller]")]
+public class MessagesController : ApiController
 {
     private readonly IMessageRepository _msgRepository;
     private readonly IChatRepository _chatRepository;
-    public MessageController(
+    public MessagesController(
         IChatRepository chatRepository,
         IMessageRepository msgRepository,
         IUserRepository usrRepository,
-        ILogger<ChatController> logger
+        ILogger<MessagesController> logger
     ) : base(logger, usrRepository)
     {
         _chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
@@ -77,7 +77,7 @@ public class MessageController : ApiController
         });
     }
     [HttpGet("{msgId:guid}")]
-    public async Task<ActionResult<GetMessageResponse>> GetMessage(Guid msgId)
+    public async Task<ActionResult<GetMessageResponse>> GetMessage([FromRoute] Guid msgId)
     {
         var chat = await _chatRepository.Get(CurrentChatId);
         if (chat?.Members?.All(m => m.Id != CurrentUserId) ?? true)
@@ -127,7 +127,7 @@ public class MessageController : ApiController
     }
 
     [HttpDelete("{msgId:guid}")]
-    public async Task<ActionResult<DeleteMessageResponse>> DeleteMessage(Guid msgId)
+    public async Task<ActionResult<DeleteMessageResponse>> DeleteMessage([FromRoute] Guid msgId)
     {
         var user = await _usrRepository.Get(CurrentUserId);
         var chat = await _chatRepository.Get(CurrentChatId);

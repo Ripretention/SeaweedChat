@@ -7,21 +7,21 @@ using SeaweedChat.API.Security;
 
 namespace SeaweedChat.API.Controllers;
 
-[Route("api/Accounts/{AccountId:guid}/[controller]s")]
+[Route("api/v1/Accounts/{AccountId:guid}/[controller]")]
 [ApiController]
-public class SessionController : ControllerBase
+public class SessionsController : ControllerBase
 {
     private readonly IAccountRepository _accRepository;
     private readonly ISessionRepository _sessionRepository;
-    private readonly ILogger<SessionController> _logger;
+    private readonly ILogger<SessionsController> _logger;
     private readonly IPasswordEncoder? _encoder;
     private readonly IAuthentication _auth;
-    public SessionController(
+    public SessionsController(
         IAccountRepository accRepository,
         ISessionRepository sessionRepository,
         IAuthentication auth,
         IPasswordEncoder? encoder,
-        ILogger<SessionController> logger
+        ILogger<SessionsController> logger
     )
     {
         _accRepository = accRepository ?? throw new ArgumentNullException(nameof(accRepository));
@@ -55,7 +55,7 @@ public class SessionController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<ActionResult<AddSessionRequest>> AddSession(AddSessionRequest request)
+    public async Task<ActionResult<AddSessionRequest>> AddSession([FromBody] AddSessionRequest request)
     {
         var account = await _accRepository.GetByEmail(request.Email);
         if (account == null)
@@ -92,7 +92,7 @@ public class SessionController : ControllerBase
 
     [Authorize]
     [HttpDelete("{sessionId:guid}")]
-    public async Task<ActionResult<DeleteSessionResponse>> DeleteSession(Guid sessionId)
+    public async Task<ActionResult<DeleteSessionResponse>> DeleteSession([FromRoute] Guid sessionId)
     {
         var session = await _sessionRepository.Get(sessionId);
         var accessToken = Request.Headers["Authorization"]

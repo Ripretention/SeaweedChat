@@ -3,21 +3,21 @@ using Microsoft.AspNetCore.Mvc;
 using SeaweedChat.API.Models;
 namespace SeaweedChat.API.Controllers;
 
-[Route("api/[controller]s")]
-public class ChatController : ApiController
+[Route("api/v1/[controller]")]
+public class ChatsController : ApiController
 {
     private readonly IChatRepository _chatRepository;
-    public ChatController(
+    public ChatsController(
         IChatRepository chatRepository,
         IUserRepository usrRepository,
-        ILogger<ChatController> logger
+        ILogger<ChatsController> logger
     ) : base(logger, usrRepository)
     {
         _chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
     }
 
     [HttpGet("{ChatId:guid}")]
-    public async Task<ActionResult<GetChatResponse>> GetChat(Guid chatId)
+    public async Task<ActionResult<GetChatResponse>> GetChat([FromRoute] Guid chatId)
     {
         var chat = await _chatRepository.Get(chatId);
         if (chat?.Members?.All(m => m.Id != CurrentUserId) ?? true)
@@ -53,7 +53,7 @@ public class ChatController : ApiController
     }
 
     [HttpPut]
-    public async Task<ActionResult<AddChatResponse>> AddChat(AddChatRequest request)
+    public async Task<ActionResult<AddChatResponse>> AddChat([FromBody] AddChatRequest request)
     {
         var user = await _usrRepository.Get(CurrentUserId);
         if (user == null)
@@ -88,7 +88,7 @@ public class ChatController : ApiController
         });
     }
     [HttpDelete("{ChatId:guid}")]
-    public async Task<ActionResult<DeleteChatResponse>> DeleteChat(Guid chatId)
+    public async Task<ActionResult<DeleteChatResponse>> DeleteChat([FromRoute] Guid chatId)
     {
         var chat = await _chatRepository.Get(chatId);
         if (chat?.Members?.All(m => m.Id != CurrentUserId) ?? true)
