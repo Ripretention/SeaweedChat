@@ -16,7 +16,7 @@ public class ChatsController : ApiController
         _chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
     }
 
-    [HttpGet("{ChatId:guid}")]
+    [HttpGet("{chatId:guid}")]
     public async Task<ActionResult<GetChatResponse>> GetChat([FromRoute] Guid chatId)
     {
         var chat = await _chatRepository.Get(chatId);
@@ -87,7 +87,7 @@ public class ChatsController : ApiController
             Message = $"Chat #{chat.Id} successfully added"
         });
     }
-    [HttpDelete("{ChatId:guid}")]
+    [HttpDelete("{chatId:guid}")]
     public async Task<ActionResult<DeleteChatResponse>> DeleteChat([FromRoute] Guid chatId)
     {
         var chat = await _chatRepository.Get(chatId);
