@@ -79,7 +79,8 @@ public class SessionsController : ControllerBase
         var session = await _sessionRepository.Add(new Session 
         {
             Account = account,
-            Token = jwt
+            Token = jwt,
+            Date = DateTime.Now
         });
 
         return Ok(new AddSessionResponse

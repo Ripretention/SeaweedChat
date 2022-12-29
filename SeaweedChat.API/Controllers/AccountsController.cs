@@ -63,13 +63,14 @@ public class AccountsController : ControllerBase
     public async Task<ActionResult<DeleteAccountResponse>> DeleteAccount([FromRoute] Guid accountId, [FromQuery] string password)
     {
         var account = await _accRepository.Get(accountId);
-        if (account?.VerifyPassword(_encoder?.Encode(password) ?? password) ?? true)
+        if (!(account?.VerifyPassword(_encoder?.Encode(password) ?? password) ?? false))
             return BadRequest(new DeleteAccountResponse
             {
                 Message = "Incorrect password"
             });
 
         await _accRepository.Remove(account);
+        await _usrRepository.Remove(account.User);
         return Ok(new DeleteAccountResponse
         {
             Result = true,

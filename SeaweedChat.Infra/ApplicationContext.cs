@@ -40,14 +40,14 @@ public class ApplicationContext : DbContext
             s.HasKey(p => p.Id);
             s.HasOne(p => p.Account)
                 .WithMany()
-                .OnDelete(DeleteBehavior.ClientCascade);
+                .OnDelete(DeleteBehavior.Cascade);
         });
         modelBuilder.Entity<Message>(m => 
         {
             m.HasKey(p => p.Id);
             m.HasOne(p => p.Owner)
                 .WithMany()
-                .OnDelete(DeleteBehavior.ClientCascade);
+                .OnDelete(DeleteBehavior.Cascade);
             m.HasOne(p => p.Chat)
                 .WithMany()
                 .OnDelete(DeleteBehavior.ClientCascade);
