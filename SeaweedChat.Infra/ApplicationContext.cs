@@ -27,13 +27,20 @@ public class ApplicationContext : DbContext
         {
             c.HasKey(p => p.Id);
             c.Property(p => p.Title).HasMaxLength(128);
-            c.HasMany(p => p.Members)
-                .WithMany()
-                .UsingEntity("ChatMembers");
         });
         modelBuilder.Entity<User>(u =>
         {
             u.HasKey(p => p.Id);
+        });
+        modelBuilder.Entity<ChatMember>(m =>
+        {
+            m.HasKey(p => p.Id);
+            m.HasOne(p => p.Chat)
+                .WithMany(p => p.Members)
+                .OnDelete(DeleteBehavior.Cascade);
+            m.HasOne(p => p.User)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Cascade);
         });
         modelBuilder.Entity<Session>(s =>
         {
@@ -50,7 +57,7 @@ public class ApplicationContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
             m.HasOne(p => p.Chat)
                 .WithMany()
-                .OnDelete(DeleteBehavior.ClientCascade);
+                .OnDelete(DeleteBehavior.Cascade);
             m.Property(p => p.Text).HasMaxLength(4096);
         });
     }

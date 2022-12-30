@@ -20,7 +20,7 @@ public class ChatsController : ApiController
     public async Task<ActionResult<GetChatResponse>> GetChat([FromRoute] Guid chatId)
     {
         var chat = await _chatRepository.Get(chatId);
-        if (chat?.Members?.All(m => m.Id != CurrentUserId) ?? true)
+        if (chat?.GetMemberByUser(CurrentUserId) == null)
             return BadRequest(new GetChatResponse
             {
                 Message = "Unknown chat"
@@ -67,9 +67,15 @@ public class ChatsController : ApiController
         {
             chat = new Chat()
             {
-                Title = request.Title
+                Title = request.Title,
+                Type = request.Type
             };
-            chat.AddMember(user);
+            chat.AddMember(new ChatMember
+            {
+                Chat = chat,
+                User = user,
+                Permission = ChatMemberPermission.Owner
+            });
             chat = await _chatRepository.Add(chat);
         }
         catch (Exception e)
@@ -91,11 +97,21 @@ public class ChatsController : ApiController
     public async Task<ActionResult<DeleteChatResponse>> DeleteChat([FromRoute] Guid chatId)
     {
         var chat = await _chatRepository.Get(chatId);
-        if (chat?.Members?.All(m => m.Id != CurrentUserId) ?? true)
+        if (chat?.GetMemberByUser(CurrentUserId) == null)
             return BadRequest(new DeleteChatResponse
             {
                 Message = "Unknown chat"
             });
+        
+        if (chat.Type == ChatType.Channel)
+        {
+            var member = chat.Members.First(m => m.User.Id == CurrentUserId);
+            if (member?.Permission == ChatMemberPermission.Member)
+                return BadRequest(new DeleteChatResponse
+                {
+                   Message = "Access denied" 
+                });
+        }
 
         await _chatRepository.Remove(chat);
         return Ok(new DeleteChatResponse

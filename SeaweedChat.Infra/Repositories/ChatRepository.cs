@@ -15,7 +15,7 @@ public class ChatRepository : Repository, IChatRepository
             return Array.Empty<Chat>();
         return await _context.Chats
             .Include(c => c.Members)
-            .Where(c => c.Members.Contains(user))
+            .Where(c => c.Members.Any(m => m.User == user))
             .ToArrayAsync();
     }
 

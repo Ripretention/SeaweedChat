@@ -32,7 +32,7 @@ public class MessagesController : ApiController
     public async Task<ActionResult<EditMessageResponse>> EditMessage([FromRoute] Guid msgId, [FromBody] EditMessageRequest request)
     {
         var chat = await _chatRepository.Get(CurrentChatId);
-        if (chat?.Members?.All(m => m.Id != CurrentUserId) ?? true)
+        if (chat?.GetMemberByUser(CurrentUserId) == null)
             return BadRequest(new EditMessageResponse
             {
                 Message = "Unknown chat"
@@ -62,7 +62,7 @@ public class MessagesController : ApiController
     public async Task<ActionResult<GetAllMessageResponse>> GetMessages([FromQuery] int offset = 0, [FromQuery] int limit = 200)
     {
         var chat = await _chatRepository.Get(CurrentChatId);
-        if (chat?.Members?.All(m => m.Id != CurrentUserId) ?? true)
+        if (chat?.GetMemberByUser(CurrentUserId) == null)
             return BadRequest(new GetChatResponse
             {
                 Message = "Unknown chat"
@@ -80,7 +80,7 @@ public class MessagesController : ApiController
     public async Task<ActionResult<GetMessageResponse>> GetMessage([FromRoute] Guid msgId)
     {
         var chat = await _chatRepository.Get(CurrentChatId);
-        if (chat?.Members?.All(m => m.Id != CurrentUserId) ?? true)
+        if (chat?.GetMemberByUser(CurrentUserId) == null)
             return BadRequest(new GetChatResponse
             {
                 Message = "Unknown chat"
@@ -103,9 +103,9 @@ public class MessagesController : ApiController
     [HttpPut]
     public async Task<ActionResult<AddMessageResponse>> AddMessage([FromBody] AddMessageRequest request)
     {
-        var user = await _usrRepository.Get(CurrentUserId);
         var chat = await _chatRepository.Get(CurrentChatId);
-        if (user == null || (chat?.Members?.All(m => m != user) ?? true))
+        var member = chat?.GetMemberByUser(CurrentUserId);
+        if (chat == null || member == null)
             return BadRequest(new GetChatResponse
             {
                 Message = "Unknown chat"
@@ -115,7 +115,7 @@ public class MessagesController : ApiController
         {
             Chat = chat,
             CreatedAt = DateTime.Now,
-            Owner = user,
+            Owner = member.User,
             Text = request.Text
         });
 
@@ -129,9 +129,9 @@ public class MessagesController : ApiController
     [HttpDelete("{msgId:guid}")]
     public async Task<ActionResult<DeleteMessageResponse>> DeleteMessage([FromRoute] Guid msgId)
     {
-        var user = await _usrRepository.Get(CurrentUserId);
         var chat = await _chatRepository.Get(CurrentChatId);
-        if (chat?.Members?.All(m => m.Id != user?.Id) ?? true)
+        var member = chat?.GetMemberByUser(CurrentUserId);
+        if (chat == null || member == null)
             return BadRequest(new DeleteMessageResponse
             {
                 Message = "Unknown chat"
@@ -143,7 +143,7 @@ public class MessagesController : ApiController
             {
                 Message = "Unknown message"
             });
-        if (msg.Owner != user)
+        if (msg.Owner != member.User)
             return BadRequest(new DeleteMessageResponse
             {
                 Message = "Access denied"
