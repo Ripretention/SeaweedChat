@@ -1,5 +1,6 @@
 using SeaweedChat.Domain.Aggregates;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 namespace SeaweedChat.Infra.Repositories;
 
 public class UserRepository : Repository, IUserRepository
@@ -8,6 +9,11 @@ public class UserRepository : Repository, IUserRepository
         : base(context, logger)
     {}
 
+    public async Task<User?> Get(string username)
+    {
+        _logger?.LogInformation($"get user by username <{username}>");
+        return await _context.Users.FirstOrDefaultAsync(usr => usr.Username == username);
+    }
     public async Task<User?> Get(Guid id)
     {
         _logger?.LogInformation($"get user by id <{id}>");
@@ -29,14 +35,14 @@ public class UserRepository : Repository, IUserRepository
         }
     }
 
-    public bool HasUser(string username)
+    public async Task<bool> HasUser(string username)
     {
         _logger?.LogInformation($"looking for user by username <{username}>");
-        return username != null && _context.Users.Any(acc => acc.Username == username);
+        return username != null && await _context.Users.AnyAsync(acc => acc.Username == username);
     }
     public async Task<User> Add(User usr)
     {
-        if (HasUser(usr.Username))
+        if (await HasUser(usr.Username))
             throw new ArgumentException("User with such username already exist");
 
         var entity = (await _context.Users.AddAsync(usr)).Entity;

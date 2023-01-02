@@ -27,6 +27,10 @@ public class ApplicationContext : DbContext
         {
             c.HasKey(p => p.Id);
             c.Property(p => p.Title).HasMaxLength(128);
+            c.HasMany(p => p.Members)
+                .WithOne()
+                .HasForeignKey(p => p.ChatId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
         modelBuilder.Entity<User>(u =>
         {
@@ -35,9 +39,6 @@ public class ApplicationContext : DbContext
         modelBuilder.Entity<ChatMember>(m =>
         {
             m.HasKey(p => p.Id);
-            m.HasOne(p => p.Chat)
-                .WithMany(p => p.Members)
-                .OnDelete(DeleteBehavior.Cascade);
             m.HasOne(p => p.User)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Cascade);

@@ -72,7 +72,7 @@ public class ChatsController : ApiController
             };
             chat.AddMember(new ChatMember
             {
-                Chat = chat,
+                ChatId = chat.Id,
                 User = user,
                 Permission = ChatMemberPermission.Owner
             });
