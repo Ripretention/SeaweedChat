@@ -107,11 +107,12 @@ public class MembersController : ApiController
         };
         chat.AddMember(member);
         _logger?.LogInformation($"{member} has been added to chat {chat}");
+        await _chatRepository.Update();
 
         return Ok(new AddMemberResponse
         {
             Result = true,
-            Message = $"Member #{chat.Id} successfully added"
+            Message = $"Member #{member} successfully added"
         });
     }
 }

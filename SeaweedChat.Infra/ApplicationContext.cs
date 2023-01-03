@@ -39,6 +39,7 @@ public class ApplicationContext : DbContext
         modelBuilder.Entity<ChatMember>(m =>
         {
             m.HasKey(p => p.Id);
+            m.Navigation(p => p.User).AutoInclude();
             m.HasOne(p => p.User)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Cascade);
