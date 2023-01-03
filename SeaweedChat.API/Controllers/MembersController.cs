@@ -36,31 +36,21 @@ public class MembersController : ApiController
         var chat = await CurrentChat;
         var currentMember = chat?.GetMemberByUser(CurrentUserId);
         if (chat == null || currentMember == null)
-            return BadRequest(new DeleteMemberResponse
-            {
-                Message = "Unknown chat"
-            });
+            return BadRequest("Unknown chat");
         var member = chat.GetMemberByUser(memberId);
         if (member == null)
-            return BadRequest(new DeleteMessageResponse
-            {
-               Message = "Unknown member" 
-            });
+            return BadRequest("Unknown member");
         if (
             chat.Type == ChatType.Channel && 
             currentMember.Permission > ChatMemberPermission.Member &&
             currentMember.Permission > member.Permission
         )
-            return BadRequest(new DeleteMessageResponse
-            {
-               Message = "Access denied" 
-            });
+            return BadRequest("Access denied");
 
         chat.RemoveMember(member);
         _logger?.LogInformation($"{member} has been added to {chat}");
         return Ok(new DeleteMessageResponse
         {
-            Result = true,
             Message = $"Member #{member.Id} successfully deleted"
         });
     }
@@ -75,29 +65,17 @@ public class MembersController : ApiController
         );
         var currentMember = chat?.GetMemberByUser(CurrentUserId);
         if (chat == null || currentMember == null)
-            return BadRequest(new AddMemberResponse
-            {
-                Message = "Unknown chat"
-            });
+            return BadRequest("Unknown chat");
         if (user == null)
-            return BadRequest(new AddMemberResponse
-            {
-                Message = "Unknown user"
-            });
+            return BadRequest("Unknown user");
         if (chat.GetMemberByUser(user) != null)
-            return BadRequest(new AddMemberResponse
-            {
-                Message = "User is already in chat"
-            });
+            return BadRequest("User is already in chat");
         if (
             chat.Type == ChatType.Channel && 
             currentMember.Permission <= ChatMemberPermission.Member
         )
         {
-            return BadRequest(new AddMemberResponse
-            {
-                Message = "Access denied"
-            });
+            return BadRequest("Access denied");
         }
 
         var member = new ChatMember()
@@ -114,7 +92,6 @@ public class MembersController : ApiController
             CurrentRequestUri + $"/{member.Id}",
             new AddMemberResponse
             {
-                Result = true,
                 Message = $"Member #{member} successfully added"
             }
         );

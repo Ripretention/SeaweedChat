@@ -33,16 +33,10 @@ public class MessagesController : ApiController
     {
         var chat = await _chatRepository.Get(CurrentChatId);
         if (chat?.GetMemberByUser(CurrentUserId) == null)
-            return BadRequest(new EditMessageResponse
-            {
-                Message = "Unknown chat"
-            });
+            return BadRequest("Unknown chat");
         var msg = await _msgRepository.Get(msgId);
         if (msg == null || msg.Chat.Id != CurrentChatId)
-            return BadRequest(new EditMessageResponse
-            {
-                Message = "Unknown message"
-            });
+            return BadRequest("Unknown message");
 
         if (request.Text != null)
         {
@@ -53,7 +47,6 @@ public class MessagesController : ApiController
         await _chatRepository.Update();
         return Ok(new EditMessageResponse
         {
-            Result = true,
             Message = "Success"
         });
     }
@@ -63,15 +56,11 @@ public class MessagesController : ApiController
     {
         var chat = await _chatRepository.Get(CurrentChatId);
         if (chat?.GetMemberByUser(CurrentUserId) == null)
-            return BadRequest(new GetChatResponse
-            {
-                Message = "Unknown chat"
-            });
+            return BadRequest("Unknown chat");
 
         var messages = await _msgRepository.GetChatMessages(chat, offset, limit);
         return Ok(new GetAllMessageResponse
         {
-            Result = true,
             Message = "Success",
             Messages = messages
         });
@@ -81,21 +70,14 @@ public class MessagesController : ApiController
     {
         var chat = await _chatRepository.Get(CurrentChatId);
         if (chat?.GetMemberByUser(CurrentUserId) == null)
-            return BadRequest(new GetChatResponse
-            {
-                Message = "Unknown chat"
-            });
+            return BadRequest("Unknown chat");
 
         var msg = await _msgRepository.Get(msgId);
         if (msg == null || msg.Chat != chat)
-            return BadRequest(new GetMessageResponse
-            {
-                Message = "Unknown message"
-            });
+            return BadRequest("Unknown message");
 
         return Ok(new GetMessageResponse
         {
-            Result = true,
             Message = "Success",
             MessageBody = msg
         });
@@ -107,10 +89,7 @@ public class MessagesController : ApiController
         var chat = await _chatRepository.Get(CurrentChatId);
         var member = chat?.GetMemberByUser(CurrentUserId);
         if (chat == null || member == null)
-            return BadRequest(new AddMessageResponse
-            {
-                Message = "Unknown chat"
-            });
+            return BadRequest("Unknown chat");
 
         var msg = await _msgRepository.Add(new Message 
         {
@@ -124,7 +103,6 @@ public class MessagesController : ApiController
             CurrentRequestUri + $"/{msg.Id}",
             new AddMessageResponse
             {
-                Result = true,
                 Message = $"Message #{msg.Id} successfully added"
             }
         );
@@ -136,27 +114,17 @@ public class MessagesController : ApiController
         var chat = await _chatRepository.Get(CurrentChatId);
         var member = chat?.GetMemberByUser(CurrentUserId);
         if (chat == null || member == null)
-            return BadRequest(new DeleteMessageResponse
-            {
-                Message = "Unknown chat"
-            });
+            return BadRequest("Unknown chat");
 
         var msg = await _msgRepository.Get(msgId);
         if (msg == null || msg.Chat != chat)
-            return BadRequest(new DeleteMessageResponse
-            {
-                Message = "Unknown message"
-            });
+            return BadRequest("Unknown message");
         if (msg.Owner != member.User)
-            return BadRequest(new DeleteMessageResponse
-            {
-                Message = "Access denied"
-            });
+            return BadRequest("Access denied");
 
         await _msgRepository.Remove(msg);
         return Ok(new DeleteMessageResponse
         {
-            Result = true,
             Message = $"Message #{msg.Id} successfully deleted"
         });
     }

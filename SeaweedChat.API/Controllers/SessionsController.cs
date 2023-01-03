@@ -46,7 +46,6 @@ public class SessionsController : ApiController
         
         return Ok(new GetSessionsResponse
         {
-            Result = true,
             Message = "Success",
             Sessions = sessions
         });
@@ -58,15 +57,9 @@ public class SessionsController : ApiController
     {
         var account = await _accRepository.GetByEmail(request.Email);
         if (account == null)
-            return BadRequest(new AddSessionResponse
-            {
-                Message = "Account with the email doesn't exist"
-            });
+            return BadRequest("Account with the email doesn't exist");
         if (!account.VerifyPassword(_encoder?.Encode(request.Password) ?? request.Password))
-            return BadRequest(new AddSessionResponse
-            {
-                Message = "Incorrect password"
-            });
+            return BadRequest("Incorrect password");
 
         var claims = new List<Claim>
         {
@@ -86,7 +79,6 @@ public class SessionsController : ApiController
             CurrentRequestUri + $"/{session.Id}",
             new AddSessionResponse
             {
-                Result = true,
                 Message = $"Session #{session.Id} successfully created",
                 SessionToken = jwt
             }
@@ -103,14 +95,10 @@ public class SessionsController : ApiController
             .Replace("Bearer ", "");
         
         if (session?.Account?.Id != CurrentAccountId || session?.Token != accessToken)
-            return BadRequest(new DeleteSessionResponse 
-            {
-                Message = "Invalid token"
-            });
+            return BadRequest("Invalid token");
 
         return Ok(new DeleteSessionResponse
         {
-            Result = true,
             Message = $"Session #{session.Id} successfully deleted",
         });
     }
@@ -121,16 +109,12 @@ public class SessionsController : ApiController
         var account = await _accRepository.Get(CurrentAccountId);
         var sessions = await _sessionRepository.GetAllAccountSessions(account);
         if (sessions.Count == 0)
-            return BadRequest(new DeleteSessionResponse 
-            {
-                Message = "Invalid account"
-            });
+            return BadRequest("Invalid account");
         foreach (var session in sessions)
             await _sessionRepository.Remove(session);
 
         return Ok(new DeleteSessionResponse
         {
-            Result = true,
             Message = $"All sessions successfully deleted",
         });
     }

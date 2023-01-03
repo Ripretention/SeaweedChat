@@ -43,18 +43,13 @@ public class AccountsController : ApiController
                 CurrentRequestUri + $"/{account.Id}",
                 new AddAccountResponse
                 {
-                    Result = true,
                     Message = $"Account #{account.Id} successfully added"
                 }
             );
         }
         catch (ArgumentException e)
         {
-            return BadRequest(new AddAccountResponse
-            {
-                Result = false,
-                Message = e.Message
-            });
+            return BadRequest(e.Message);
         }
     }
 
@@ -63,16 +58,12 @@ public class AccountsController : ApiController
     {
         var account = await _accRepository.Get(accountId);
         if (!(account?.VerifyPassword(_encoder?.Encode(password) ?? password) ?? false))
-            return BadRequest(new DeleteAccountResponse
-            {
-                Message = "Incorrect password"
-            });
+            return BadRequest("Incorrect password");
 
         await _accRepository.Remove(account);
         await _usrRepository.Remove(account.User);
         return Ok(new DeleteAccountResponse
         {
-            Result = true,
             Message = $"Account #{account.Id} successfully deleted"
         });
     }
@@ -82,10 +73,7 @@ public class AccountsController : ApiController
     {
         var account = await _accRepository.Get(accountId);
         if (!(account?.VerifyPassword(_encoder?.Encode(request.ConfirmationPassword) ?? request.ConfirmationPassword) ?? false))
-            return BadRequest(new EditAccountResponse
-            {
-                Message = "Incorrect confirmation password"
-            });
+            return BadRequest("Incorrect confirmation password");
 
         var updates = new List<string>();
         if (request.Password != null)
@@ -113,7 +101,6 @@ public class AccountsController : ApiController
 
         return Ok(new EditAccountResponse
         {
-            Result = true,
             Message = $"Fields {string.Join(", ", updates)} successfully edited"
         });
     }
