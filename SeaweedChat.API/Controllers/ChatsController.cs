@@ -53,6 +53,7 @@ public class ChatsController : ApiController
     }
 
     [HttpPut]
+    [ProducesResponseType(201)]
     public async Task<ActionResult<AddChatResponse>> AddChat([FromBody] AddChatRequest request)
     {
         var user = await _usrRepository.Get(CurrentUserId);
@@ -87,11 +88,14 @@ public class ChatsController : ApiController
             });
         }
 
-        return Ok(new AddChatResponse
-        {
-            Result = true,
-            Message = $"Chat #{chat.Id} successfully added"
-        });
+        return Created(
+            CurrentRequestUri + $"/{chat.Id}",
+            new AddChatResponse
+            {
+                Result = true,
+                Message = $"Chat #{chat.Id} successfully added"
+            }
+        );
     }
     [HttpDelete("{chatId:guid}")]
     public async Task<ActionResult<DeleteChatResponse>> DeleteChat([FromRoute] Guid chatId)

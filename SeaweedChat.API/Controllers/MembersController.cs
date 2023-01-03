@@ -65,6 +65,7 @@ public class MembersController : ApiController
         });
     }
     [HttpPut]
+    [ProducesResponseType(201)]
     public async Task<ActionResult<AddMemberResponse>> AddMember([FromBody] AddMemberRequest request)
     {
         var chat = await CurrentChat;
@@ -109,10 +110,13 @@ public class MembersController : ApiController
         _logger?.LogInformation($"{member} has been added to chat {chat}");
         await _chatRepository.Update();
 
-        return Ok(new AddMemberResponse
-        {
-            Result = true,
-            Message = $"Member #{member} successfully added"
-        });
+        return Created(
+            CurrentRequestUri + $"/{member.Id}",
+            new AddMemberResponse
+            {
+                Result = true,
+                Message = $"Member #{member} successfully added"
+            }
+        );
     }
 }

@@ -8,27 +8,25 @@ using SeaweedChat.API.Security;
 namespace SeaweedChat.API.Controllers;
 
 [Route("api/v1/Accounts/{AccountId:guid}/[controller]")]
-[ApiController]
-public class SessionsController : ControllerBase
+public class SessionsController : ApiController
 {
     private readonly IAccountRepository _accRepository;
     private readonly ISessionRepository _sessionRepository;
-    private readonly ILogger<SessionsController> _logger;
     private readonly IPasswordEncoder? _encoder;
     private readonly IAuthentication _auth;
     public SessionsController(
         IAccountRepository accRepository,
+        IUserRepository userRepository,
         ISessionRepository sessionRepository,
         IAuthentication auth,
         IPasswordEncoder? encoder,
-        ILogger<SessionsController> logger
-    )
+        ILogger<SessionsController>? logger
+    ) : base(logger, userRepository)
     {
         _accRepository = accRepository ?? throw new ArgumentNullException(nameof(accRepository));
         _sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
         _auth = auth;
         _encoder = encoder;
-        _logger = logger;
     }
 
     public Guid CurrentAccountId
@@ -55,6 +53,7 @@ public class SessionsController : ControllerBase
     }
 
     [HttpPut]
+    [ProducesResponseType(201)]
     public async Task<ActionResult<AddSessionRequest>> AddSession([FromBody] AddSessionRequest request)
     {
         var account = await _accRepository.GetByEmail(request.Email);
@@ -83,12 +82,15 @@ public class SessionsController : ControllerBase
             Date = DateTime.Now
         });
 
-        return Ok(new AddSessionResponse
-        {
-            Result = true,
-            Message = $"Session #{session.Id} successfully created",
-            SessionToken = jwt
-        });
+        return Created(
+            CurrentRequestUri + $"/{session.Id}",
+            new AddSessionResponse
+            {
+                Result = true,
+                Message = $"Session #{session.Id} successfully created",
+                SessionToken = jwt
+            }
+        );
     }
 
     [Authorize]

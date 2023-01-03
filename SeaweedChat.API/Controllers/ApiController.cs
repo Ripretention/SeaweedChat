@@ -11,7 +11,7 @@ public class ApiController : ControllerBase
     protected readonly ILogger? _logger;
     protected readonly IUserRepository _usrRepository;
     public ApiController(
-        ILogger logger,
+        ILogger? logger,
         IUserRepository usrRepository
     )
     {
@@ -26,5 +26,9 @@ public class ApiController : ControllerBase
             Guid.TryParse(User.Claims.FirstOrDefault(u => u.Type == "UserId")?.Value ?? "", out Guid userId);
             return userId;
         }        
+    }
+    protected string CurrentRequestUri
+    {
+        get => $"{Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}{Request.QueryString}";
     }
 }

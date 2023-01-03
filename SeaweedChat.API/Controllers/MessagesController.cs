@@ -12,7 +12,7 @@ public class MessagesController : ApiController
         IChatRepository chatRepository,
         IMessageRepository msgRepository,
         IUserRepository usrRepository,
-        ILogger<MessagesController> logger
+        ILogger<MessagesController>? logger
     ) : base(logger, usrRepository)
     {
         _chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
@@ -101,12 +101,13 @@ public class MessagesController : ApiController
         });
     }
     [HttpPut]
+    [ProducesResponseType(201)]
     public async Task<ActionResult<AddMessageResponse>> AddMessage([FromBody] AddMessageRequest request)
     {
         var chat = await _chatRepository.Get(CurrentChatId);
         var member = chat?.GetMemberByUser(CurrentUserId);
         if (chat == null || member == null)
-            return BadRequest(new GetChatResponse
+            return BadRequest(new AddMessageResponse
             {
                 Message = "Unknown chat"
             });
@@ -119,11 +120,14 @@ public class MessagesController : ApiController
             Text = request.Text
         });
 
-        return Ok(new AddMessageResponse
-        {
-            Result = true,
-            Message = $"Message #{msg.Id} successfully added"
-        });
+        return Created(
+            CurrentRequestUri + $"/{msg.Id}",
+            new AddMessageResponse
+            {
+                Result = true,
+                Message = $"Message #{msg.Id} successfully added"
+            }
+        );
     }
 
     [HttpDelete("{msgId:guid}")]

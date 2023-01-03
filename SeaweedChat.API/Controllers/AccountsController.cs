@@ -6,27 +6,24 @@ using Microsoft.AspNetCore.Authorization;
 namespace SeaweedChat.API.Controllers;
 
 [Route("api/v1/[controller]")]
-[ApiController]
-public class AccountsController : ControllerBase
+public class AccountsController : ApiController
 {
     private readonly IAccountRepository _accRepository;
-    private readonly IUserRepository _usrRepository;
     private readonly IPasswordEncoder? _encoder;
-    private readonly ILogger<AccountsController>? _logger;
     public AccountsController(
         IAccountRepository accRepository,
         IUserRepository usrRepostiroy,
         IPasswordEncoder? encoder,
         ILogger<AccountsController>? logger
-    )
+    ) : base(logger, usrRepostiroy)
     {
         _accRepository = accRepository ?? throw new ArgumentNullException(nameof(accRepository));
-        _usrRepository = usrRepostiroy ?? throw new ArgumentNullException(nameof(usrRepostiroy));
         _encoder = encoder;
-        _logger = logger;
     }
 
+    [AllowAnonymous]
     [HttpPut]
+    [ProducesResponseType(201)]
     public async Task<ActionResult<AddAccountResponse>> AddAccount([FromBody] AddAccountRequest request)
     {
         try 
@@ -42,11 +39,14 @@ public class AccountsController : ControllerBase
                 User = user
             });
             
-            return Ok(new AddAccountResponse
-            {
-                Result = true,
-                Message = $"Account #{account.Id} successfully added"
-            });
+            return Created(
+                CurrentRequestUri + $"/{account.Id}",
+                new AddAccountResponse
+                {
+                    Result = true,
+                    Message = $"Account #{account.Id} successfully added"
+                }
+            );
         }
         catch (ArgumentException e)
         {
@@ -58,7 +58,6 @@ public class AccountsController : ControllerBase
         }
     }
 
-    [Authorize]
     [HttpDelete("{accountId:guid}")]
     public async Task<ActionResult<DeleteAccountResponse>> DeleteAccount([FromRoute] Guid accountId, [FromQuery] string password)
     {
@@ -78,7 +77,6 @@ public class AccountsController : ControllerBase
         });
     }
 
-    [Authorize]
     [HttpPost("{accountId:guid}")]
     public async Task<ActionResult<EditAccountResponse>> EditAccount([FromRoute] Guid accountId, [FromBody] EditAccountRequest request)
     {
