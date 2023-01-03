@@ -96,7 +96,7 @@ public class AccountsController : ApiController
             updates.Add("username");
         }
 
-        _logger?.LogInformation($"edit {account}: {string.Join(", ", updates)}");
+        _logger?.LogDebug($"edit {account}: {string.Join(", ", updates)}");
         await _accRepository.Update();
 
         return Ok(new EditAccountResponse

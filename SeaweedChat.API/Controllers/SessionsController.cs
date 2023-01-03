@@ -29,14 +29,6 @@ public class SessionsController : ApiController
         _encoder = encoder;
     }
 
-    public Guid CurrentAccountId
-    {
-        get 
-        {
-            Guid.TryParse((string?)RouteData.Values.FirstOrDefault(v => v.Key == "AccountId").Value ?? "", out Guid accountId);
-            return accountId;
-        }
-    }
     [Authorize]
     [HttpGet]
     public async Task<ActionResult<GetSessionsResponse>> GetAllSessions()
@@ -47,11 +39,17 @@ public class SessionsController : ApiController
         return Ok(new GetSessionsResponse
         {
             Message = "Success",
-            Sessions = sessions
+            Sessions = sessions.Select(session => new SessionDto
+            {
+                Id = session.Id,
+                Date = session.Date,
+                Token =  string.Concat(session.Token.Take(20)) + "..."
+            })
         });
     }
 
     [HttpPut]
+    [AllowAnonymous]
     [ProducesResponseType(201)]
     public async Task<ActionResult<AddSessionRequest>> AddSession([FromBody] AddSessionRequest request)
     {
@@ -117,5 +115,14 @@ public class SessionsController : ApiController
         {
             Message = $"All sessions successfully deleted",
         });
+    }
+
+    public Guid CurrentAccountId
+    {
+        get 
+        {
+            Guid.TryParse((string?)RouteData.Values.FirstOrDefault(v => v.Key == "AccountId").Value ?? "", out Guid accountId);
+            return accountId;
+        }
     }
 }

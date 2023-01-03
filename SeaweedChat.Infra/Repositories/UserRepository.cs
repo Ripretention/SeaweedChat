@@ -11,18 +11,18 @@ public class UserRepository : Repository, IUserRepository
 
     public async Task<User?> Get(string username)
     {
-        _logger?.LogInformation($"get user by username <{username}>");
+        _logger?.LogDebug($"get user by username <{username}>");
         return await _context.Users.FirstOrDefaultAsync(usr => usr.Username == username);
     }
     public async Task<User?> Get(Guid id)
     {
-        _logger?.LogInformation($"get user by id <{id}>");
+        _logger?.LogDebug($"get user by id <{id}>");
         return await _context.Users.FindAsync(id);
     }
 
     public async Task<bool> Remove(User usr)
     {
-        _logger?.LogInformation($"remove {usr}");
+        _logger?.LogDebug($"remove {usr}");
         try 
         {
             _context.Users.Remove(usr);
@@ -37,7 +37,7 @@ public class UserRepository : Repository, IUserRepository
 
     public async Task<bool> HasUser(string username)
     {
-        _logger?.LogInformation($"looking for user by username <{username}>");
+        _logger?.LogDebug($"looking for user by username <{username}>");
         return username != null && await _context.Users.AnyAsync(acc => acc.Username == username);
     }
     public async Task<User> Add(User usr)
@@ -46,7 +46,7 @@ public class UserRepository : Repository, IUserRepository
             throw new ArgumentException("User with such username already exist");
 
         var entity = (await _context.Users.AddAsync(usr)).Entity;
-         _logger?.LogInformation($"add {entity}");
+         _logger?.LogDebug($"add {entity}");
         await _context.SaveChangesAsync();
 
         return entity;

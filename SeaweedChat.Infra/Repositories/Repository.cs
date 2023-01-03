@@ -15,7 +15,7 @@ public class Repository
 
     public async Task<bool> Update()
     {
-        _logger?.LogInformation($"update");
+        _logger?.LogDebug($"update");
         return (await _context.SaveChangesAsync()) > 0;
     }
 }

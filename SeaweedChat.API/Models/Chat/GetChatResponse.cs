@@ -1,7 +1,6 @@
-using SeaweedChat.Domain.Aggregates;
 namespace SeaweedChat.API.Models;
 
 public class GetChatResponse : Response
 {
-    public Chat Chat { get; set; } = null!;
+    public ChatDto Chat { get; set; } = null!;
 }

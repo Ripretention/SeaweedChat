@@ -62,7 +62,7 @@ public class MessagesController : ApiController
         return Ok(new GetAllMessageResponse
         {
             Message = "Success",
-            Messages = messages
+            Messages = messages.Select(msg => new MessageDto(msg))
         });
     }
     [HttpGet("{msgId:guid}")]
@@ -79,7 +79,7 @@ public class MessagesController : ApiController
         return Ok(new GetMessageResponse
         {
             Message = "Success",
-            MessageBody = msg
+            MessageBody = new MessageDto(msg)
         });
     }
     [HttpPut]

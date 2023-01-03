@@ -11,7 +11,7 @@ public class AccountRepository : Repository, IAccountRepository
 
     public async Task<Account?> Get(Guid id)
     {
-        _logger?.LogInformation($"get account by id <{id}>");
+        _logger?.LogDebug($"get account by id <{id}>");
         return await _context.Accounts
             .Include(u => u.User)
             .FirstOrDefaultAsync(a => a.Id == id);
@@ -19,7 +19,7 @@ public class AccountRepository : Repository, IAccountRepository
 
     public async Task<Account?> GetByEmail(string email)
     {
-        _logger?.LogInformation($"get account by email <{email}>");
+        _logger?.LogDebug($"get account by email <{email}>");
         return await _context.Accounts
             .Include(u => u.User)
             .FirstOrDefaultAsync(a => a.Email == email);
@@ -27,7 +27,7 @@ public class AccountRepository : Repository, IAccountRepository
 
     public async Task<bool> Remove(Account account)
     {
-        _logger?.LogInformation($"remove {account}");
+        _logger?.LogDebug($"remove {account}");
         try 
         {
             _context.Accounts.Remove(account);
@@ -45,14 +45,14 @@ public class AccountRepository : Repository, IAccountRepository
             throw new ArgumentException("Account with such email already exist");
 
         var entity = (await _context.Accounts.AddAsync(account)).Entity;
-        _logger?.LogInformation($"add {entity}");
+        _logger?.LogDebug($"add {entity}");
         await _context.SaveChangesAsync();
 
         return entity;
     }
     public async Task<bool> HasAccount(string email)
     {
-        _logger?.LogInformation($"looking for account by email <{email}>");
+        _logger?.LogDebug($"looking for account by email <{email}>");
         return email != null && await _context.Accounts.AnyAsync(acc => acc.Email == email);
     }
 }

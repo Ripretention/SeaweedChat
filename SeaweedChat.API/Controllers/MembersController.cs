@@ -48,7 +48,7 @@ public class MembersController : ApiController
             return BadRequest("Access denied");
 
         chat.RemoveMember(member);
-        _logger?.LogInformation($"{member} has been added to {chat}");
+        _logger?.LogDebug($"{member} has been added to {chat}");
         return Ok(new DeleteMessageResponse
         {
             Message = $"Member #{member.Id} successfully deleted"
@@ -80,12 +80,12 @@ public class MembersController : ApiController
 
         var member = new ChatMember()
         {
-            ChatId = chat.Id,
+            Chat = chat,
             Permission = ChatMemberPermission.Member,
             User = user
         };
         chat.AddMember(member);
-        _logger?.LogInformation($"{member} has been added to chat {chat}");
+        _logger?.LogDebug($"{member} has been added to chat {chat}");
         await _chatRepository.Update();
 
         return Created(

@@ -28,8 +28,7 @@ public class ApplicationContext : DbContext
             c.HasKey(p => p.Id);
             c.Property(p => p.Title).HasMaxLength(128);
             c.HasMany(p => p.Members)
-                .WithOne()
-                .HasForeignKey(p => p.ChatId)
+                .WithOne(p => p.Chat)
                 .OnDelete(DeleteBehavior.Cascade);
         });
         modelBuilder.Entity<User>(u =>

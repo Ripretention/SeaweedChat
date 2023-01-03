@@ -26,7 +26,7 @@ public class ChatsController : ApiController
         return Ok(new GetChatResponse
         {
             Message = "Success",
-            Chat = chat
+            Chat = new ChatDto(chat)
         });
     }
 
@@ -40,7 +40,8 @@ public class ChatsController : ApiController
         return Ok(new GetAllChatsResponse
         {
             Message = "Success",
-            Chats = await _chatRepository.GetAllUserChats(user)
+            Chats = (await _chatRepository.GetAllUserChats(user))
+                .Select(chat => new ChatDto(chat))
         });
     }
 
@@ -62,7 +63,7 @@ public class ChatsController : ApiController
             };
             chat.AddMember(new ChatMember
             {
-                ChatId = chat.Id,
+                Chat = chat,
                 User = user,
                 Permission = ChatMemberPermission.Owner
             });

@@ -11,7 +11,7 @@ public class MessageRepository : Repository, IMessageRepository
 
     public async Task<Message?> Get(Guid id)
     {
-        _logger?.LogInformation($"get message by id <{id}>");
+        _logger?.LogDebug($"get message by id <{id}>");
         return await _context.Messages.FindAsync(id);
     }
 
@@ -22,7 +22,7 @@ public class MessageRepository : Repository, IMessageRepository
     )
     {        
         limit = Math.Abs(limit);
-        _logger?.LogInformation($"get messages of {chat}, offset={offset}, limit={limit}");
+        _logger?.LogDebug($"get messages of {chat}, offset={offset}, limit={limit}");
 
         if (chat == null)
             return Array.Empty<Message>();
@@ -40,7 +40,7 @@ public class MessageRepository : Repository, IMessageRepository
 
     public async Task<bool> Remove(Message msg)
     {
-        _logger?.LogInformation($"remove {msg}");
+        _logger?.LogDebug($"remove {msg}");
         try 
         {
             _context.Messages.Remove(msg);
@@ -60,7 +60,7 @@ public class MessageRepository : Repository, IMessageRepository
             throw new ArgumentNullException(nameof(msg.Owner));
 
         var entity = (await _context.Messages.AddAsync(msg)).Entity;
-        _logger?.LogInformation($"add {entity} for {msg.Chat}");
+        _logger?.LogDebug($"add {entity} for {msg.Chat}");
         await _context.SaveChangesAsync();
 
         return entity;
