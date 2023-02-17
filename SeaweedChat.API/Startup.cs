@@ -24,6 +24,15 @@ namespace SeaweedChat
                 .AddDbContext<ApplicationContext>(options =>
                     options.UseSqlite("Filename=test.db")
                 )
+                .AddCors(options =>
+                    options.AddPolicy("CorsPolicy", builder => 
+                        builder
+                            .SetIsOriginAllowed(_ => true)
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials()
+                    )
+                )
                 .AddSingleton<IAuthentication, JwtAuthentication>(_ => auth)
                 .AddSingleton<IPasswordEncoder>(new PasswordEncoder(Configuration["PasswordSalt"] ?? "test-salt"))
                 .AddControllers();
@@ -75,6 +84,7 @@ namespace SeaweedChat
             IWebHostEnvironment env        
         )
         {
+            app.UseCors("CorsPolicy");
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
