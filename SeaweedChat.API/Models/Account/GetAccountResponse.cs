@@ -1,5 +1,5 @@
 namespace SeaweedChat.API.Models;
-public class AddAccountResponse : Response
+public class GetAccountResponse : Response
 {
     public Guid Id { get; set; }
 }

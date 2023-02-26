@@ -21,8 +21,23 @@ public class AccountsController : ApiController
         _encoder = encoder;
     }
 
+    [HttpGet("{email}")]
     [AllowAnonymous]
+    public async Task<ActionResult<GetAccountResponse>> GetAccount([FromRoute] string email)
+    {
+        var account = await _accRepository.GetByEmail(email);
+        if (account == null)
+            return BadRequest("No account with such e-mail.");
+
+        return Ok(new GetAccountResponse 
+        {
+            Id = account.Id,
+            Message = "Success",
+        });
+    }
+
     [HttpPut]
+    [AllowAnonymous]
     [ProducesResponseType(201)]
     public async Task<ActionResult<AddAccountResponse>> AddAccount([FromBody] AddAccountRequest request)
     {
@@ -43,6 +58,7 @@ public class AccountsController : ApiController
                 CurrentRequestUri + $"/{account.Id}",
                 new AddAccountResponse
                 {
+                    Id = account.Id,
                     Message = $"Account #{account.Id} successfully added"
                 }
             );
