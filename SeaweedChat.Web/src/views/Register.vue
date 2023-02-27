@@ -74,7 +74,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import logo from "@/assets/logo.svg";
+import ApiClient from "@/network";
+import { AxiosError } from "axios";
 
+const api = new ApiClient();
 const form = ref<(HTMLFormElement & { ressetValidation: () => void }) | null>(
   null
 );
@@ -94,37 +97,28 @@ async function submitRegisterForm() {
   errors.value = { email: [], password: [], username: [] };
   form.value?.resetValidation();
 
-  let response = await fetch("http://localhost:5000/api/v1/accounts", {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email: email.value,
-      password: password.value,
-      username: username.value,
-    }),
-  });
+  try {
+    let response = await api.request("accounts", {
+      method: "PUT",
+      data: {
+        email: email.value,
+        password: password.value,
+        username: username.value,
+      },
+    });
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      if (e.code === AxiosError.ERR_BAD_REQUEST) {
+        let validationErrors: Record<string, string[]> =
+          e.response?.data?.errors ?? {};
 
-  if (response.ok) {
-    var body = await response.json();
-    console.log(body);
-  }
-
-  if (response.status == 400) {
-    let body = await response.text();
-
-    try {
-      var parsedBody = JSON.parse(body);
-      if (parsedBody.errors) {
-        for (let errorKey in parsedBody.errors)
-          errors.value[errorKey.toLowerCase()] = parsedBody.errors[errorKey];
+        for (let errorKey in validationErrors) {
+          errors.value[errorKey.toLowerCase()] = validationErrors[errorKey];
+        }
+      } else {
+        error.value = e.message;
       }
-    } catch (_) {
-      error.value = body;
     }
-  } else if (response.status == 500) {
-    error.value = "Network error.";
   }
 }
 </script>
