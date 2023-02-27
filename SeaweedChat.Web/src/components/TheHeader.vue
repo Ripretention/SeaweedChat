@@ -10,25 +10,19 @@
 
     <v-spacer></v-spacer>
 
-    <router-link custom to="/messages">
-      <v-btn icon>
-        <v-icon>mdi-message</v-icon>
-      </v-btn>
-    </router-link>
-
     <v-menu left bottom>
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn icon v-bind="attrs" v-on="on">
+      <template v-slot:activator="{ props }">
+        <v-btn icon dark v-bind="props">
           <v-icon>mdi-login</v-icon>
         </v-btn>
       </template>
 
       <v-list>
-        <v-list-item @click="() => console.log('qwe')">
+        <v-list-item href="./login">
           <v-list-item-title>Sing in</v-list-item-title>
         </v-list-item>
 
-        <v-list-item>
+        <v-list-item href="./register">
           <v-list-item-title>Sing up</v-list-item-title>
         </v-list-item>
       </v-list>
