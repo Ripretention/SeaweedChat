@@ -76,6 +76,8 @@ import { ref } from "vue";
 import logo from "@/assets/logo.svg";
 import ApiClient from "@/network";
 import { AxiosError } from "axios";
+import store from "@/store";
+import { MutationType } from "@/store/modules/User";
 
 const api = new ApiClient();
 const form = ref<(HTMLFormElement & { ressetValidation: () => void }) | null>(
@@ -86,11 +88,11 @@ const visible = ref(false);
 const username = ref();
 const email = ref();
 const password = ref();
-const errors = ref({
+const errors = ref<Record<string, string[]>>({
   email: [],
   password: [],
   username: [],
-} as Record<string, string[]>);
+});
 
 async function submitRegisterForm() {
   error.value = null;
@@ -98,14 +100,24 @@ async function submitRegisterForm() {
   form.value?.resetValidation();
 
   try {
-    let response = await api.request("accounts", {
-      method: "PUT",
-      data: {
-        email: email.value,
-        password: password.value,
-        username: username.value,
-      },
+    let { data } = await api.request<{ id: string; token: string }>(
+      "accounts",
+      {
+        method: "PUT",
+        data: {
+          email: email.value,
+          password: password.value,
+          username: username.value,
+        },
+      }
+    );
+
+    await store.dispatch("login", {
+      password: password.value,
+      email: email.value,
     });
+
+    window.open("./");
   } catch (e) {
     if (e instanceof AxiosError) {
       if (e.code === AxiosError.ERR_BAD_REQUEST) {

@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { ApiResponse } from "./ApiResponse";
 
 export default class ApiClient {
@@ -8,11 +9,19 @@ export default class ApiClient {
   });
   public async request<T>(
     method: string,
-    request: Parameters<(typeof axios)["request"]>[0]
+    request: AxiosRequestConfig<Record<string, any>>
   ) {
     request.headers = { ...request.headers, ...this.headers() };
     request.baseURL = (request.baseURL || this.baseUrl) + "/" + method;
     let response = await axios.request(request);
+    if (typeof response.data === "object") {
+      for (let key in response.data) {
+        if (key[0] == key[0].toUpperCase()) {
+          response.data[key[0] + key.substring(1)] = response.data[key];
+          delete response.data[key];
+        }
+      }
+    }
     return new ApiResponse<T>(response.status, response.data);
   }
 }
