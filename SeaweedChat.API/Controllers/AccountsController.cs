@@ -23,7 +23,7 @@ public class AccountsController : ApiController
 
     [HttpGet("{email}")]
     [AllowAnonymous]
-    public async Task<ActionResult<GetAccountResponse>> GetAccount([FromRoute] string email)
+    public async Task<ActionResult<GetAccountResponse>> GetAccountByEmail([FromRoute] string email)
     {
         var account = await _accRepository.GetByEmail(email);
         if (account == null)
@@ -35,7 +35,7 @@ public class AccountsController : ApiController
             Message = "Success",
         });
     }
-
+    
     [HttpPut]
     [AllowAnonymous]
     [ProducesResponseType(201)]
