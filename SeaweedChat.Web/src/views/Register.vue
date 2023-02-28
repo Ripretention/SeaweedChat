@@ -73,6 +73,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import router from "@/router";
 import logo from "@/assets/logo.svg";
 import ApiClient from "@/network";
 import { AxiosError } from "axios";
@@ -117,7 +118,7 @@ async function submitRegisterForm() {
       email: email.value,
     });
 
-    window.open("./");
+	router.push("home");
   } catch (e) {
     if (e instanceof AxiosError) {
       if (e.code === AxiosError.ERR_BAD_REQUEST) {

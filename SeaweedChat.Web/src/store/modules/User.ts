@@ -1,5 +1,5 @@
 import ApiClient from "@/network";
-import type { Module, ActionTree, MutationTree } from "vuex";
+import type { Module, ActionTree, MutationTree, GetterTree } from "vuex";
 
 const api = new ApiClient();
 
@@ -13,11 +13,18 @@ export const state: UserState = {
   token: localStorage.getItem("account-token") ?? undefined,
 };
 export enum MutationType {
+  RESET = "RESET",
   SET_TOKEN = "SET_TOKEN",
   SET_ID = "SET_ID",
   SET_USERNAME = "SET_USERNAME",
 }
 export const mutations: MutationTree<UserState> = {
+  [MutationType.RESET](state) {
+    state.id = undefined;
+    state.token = undefined;
+    localStorage.removeItem("account-token");
+    localStorage.removeItem("account-id");
+  },
   [MutationType.SET_TOKEN](state, token: string) {
     state.token = token;
     localStorage.setItem("account-token", token);
@@ -28,6 +35,11 @@ export const mutations: MutationTree<UserState> = {
   },
   [MutationType.SET_USERNAME](state, username: string) {
     state.username = username;
+  },
+};
+export const getters: GetterTree<UserState, any> = {
+  isAuthorized(state) {
+    return state.id != undefined && state.token != undefined;
   },
 };
 export const actions: ActionTree<UserState, any> = {

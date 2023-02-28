@@ -17,7 +17,7 @@
         </v-btn>
       </template>
 
-      <v-list>
+      <v-list v-if="!props.isAuthorized">
         <v-list-item href="./login">
           <v-list-item-title>Sing in</v-list-item-title>
         </v-list-item>
@@ -26,6 +26,26 @@
           <v-list-item-title>Sing up</v-list-item-title>
         </v-list-item>
       </v-list>
+      <v-list v-else>
+        <v-list-item link @click="emit('logout')">
+          <v-list-item-title>Log out</v-list-item-title>
+        </v-list-item>
+      </v-list>
     </v-menu>
   </v-app-bar>
 </template>
+
+<script setup lang="ts">
+import { defineProps, withDefaults } from "vue";
+const props = withDefaults(
+  defineProps<{
+    isAuthorized: boolean;
+  }>(),
+  {
+    isAuthorized: false,
+  }
+);
+const emit = defineEmits<{
+  (e: "logout"): void;
+}>();
+</script>
