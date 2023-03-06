@@ -118,15 +118,21 @@ async function submitRegisterForm() {
       email: email.value,
     });
 
-	router.push("home");
+    router.push({ path: "/" });
   } catch (e) {
     if (e instanceof AxiosError) {
       if (e.code === AxiosError.ERR_BAD_REQUEST) {
-        let validationErrors: Record<string, string[]> =
-          e.response?.data?.errors ?? {};
+        let response = e?.response?.data;
 
-        for (let errorKey in validationErrors) {
-          errors.value[errorKey.toLowerCase()] = validationErrors[errorKey];
+        if (typeof response === "object" && response != null) {
+          let validationErrors: Record<string, string[]> =
+            response.errors ?? {};
+
+          for (let errorKey in validationErrors) {
+            errors.value[errorKey.toLowerCase()] = validationErrors[errorKey];
+          }
+        } else {
+          error.value = response;
         }
       } else {
         error.value = e.message;
