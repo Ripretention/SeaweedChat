@@ -4,7 +4,8 @@ export interface Message {
   author: string;
   direction: "from" | "to";
 }
-export interface ChatPreview {
+export interface Chat {
+  id: string;
   date: Date;
   text: string;
   author: string;

@@ -1,6 +1,6 @@
 <template>
   <template v-if="isAuthorized">
-    <ChatHub :chats="previewMessage" />
+    <ChatHub />
   </template>
   <template v-else>
     <v-alert dark icon="mdi-vuetify" border="left" prominent>
@@ -18,10 +18,10 @@ import store from "@/store";
 import { computed, reactive, ref } from "vue";
 const isAuthorized = computed(() => store.getters.isAuthorized);
 import { getRandomElement } from "../utils";
-import type { ChatPreview } from "@/types/Chat";
+import type { Message } from "@/types/Chat";
 
 const dialog = ref(false);
-const previewMessage = reactive<ChatPreview[]>([]);
+const previewMessage = reactive<Message[]>([]);
 const names = [
   "John",
   "Loid",
@@ -39,7 +39,17 @@ for (let i = 0; i < 15; i++) {
   previewMessage.push({
     date,
     author: getRandomElement(names) + " " + getRandomElement(families),
-    text: `hello, ${getRandomElement(names)}`,
+    text: `hello, ${getRandomElement(names)}, `,
+    direction: getRandomElement(["from", "to"]),
+  });
+}
+
+function sendMessage(text: string) {
+  previewMessage.push({
+    date: new Date(),
+    author: "You",
+    text,
+    direction: "to",
   });
 }
 </script>
