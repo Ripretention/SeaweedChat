@@ -24,5 +24,6 @@ const props = defineProps<{
   text: string;
   direction: "from" | "to";
 }>();
+console.log(props.date);
 const isFrom = computed(() => props.direction == "from");
 </script>

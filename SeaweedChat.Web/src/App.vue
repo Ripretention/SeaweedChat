@@ -12,7 +12,7 @@ import router from "@/router";
 import store from "@/store";
 import TheHeader from "@/components/TheHeader.vue";
 import { computed } from "vue";
-import { MutationType } from "./store/modules/User";
+import { MutationType } from "./store/modules/user";
 const isAuthorized = computed(() => store.getters.isAuthorized);
 
 function logout() {

@@ -14,11 +14,11 @@
         <div class="d-flex flex-column">
           <ChatMessage
             v-for="msg in props.messages"
-            :key="msg.date"
-            :author="msg.author"
+            :key="msg.id"
+            :author="msg.ownerUsername"
             :text="msg.text"
-            :direction="msg.direction"
-            :date="msg.date"
+            :direction="msg.ownerId == props.ownerId ? 'from' : 'to'"
+            :date="msg.editAt ?? msg.createdAt"
           />
         </div>
 
@@ -28,7 +28,7 @@
         >
           <v-text-field
             outlined
-            v-model="msg"
+            v-model="currentMessage"
             color="blue"
             placeholder="Write a message"
             @keypress.enter="sendMessage"
@@ -55,33 +55,52 @@ import {
 } from "vue";
 import type { Message } from "@/types/Chat";
 
-const messages = ref<HTMLDivElement | null>(null);
-const msg = ref<string | null>(null);
+const currentMessage = ref<string | null>(null);
+const messagesForm = ref<HTMLDivElement | null>(null);
+
 const props = withDefaults(
   defineProps<{
-    title: string;
+    id?: string;
+    ownerId?: string;
     messages: Message[];
+    title: string;
   }>(),
   {
-    title: "Chat",
     messages: () => [],
+    title: "Chat",
   }
 );
 const emit = defineEmits<{
-  (e: "sendMessage", text: string): Promise<any>;
-  (e: "backToHub"): any;
+  (
+    e: "loadMessages",
+    params: {
+      chatId: string;
+      offset: number;
+    }
+  ): Promise<void>;
+  (e: "sendMessage", chatId: string, text: string): Promise<void>;
+  (e: "backToHub"): void;
 }>();
 
-onMounted(() => {
-  messages?.value?.scrollIntoView(false);
+onMounted(async () => {
+  if (props.id != null)
+    await emit("loadMessages", {
+      chatId: props.id,
+      offset: 0,
+    });
 });
 watch(props.messages, async () => {
-  messages?.value?.scrollIntoView(false);
+  messagesForm?.value?.scrollIntoView(false);
 });
 async function sendMessage() {
-  if (msg.value == null || msg.value.trim() == "") return;
+  if (
+    currentMessage.value == null ||
+    currentMessage.value.trim() == "" ||
+    props.id == null
+  )
+    return;
 
-  await emit("sendMessage", msg.value);
-  msg.value = "";
+  await emit("sendMessage", props.id, currentMessage.value);
+  currentMessage.value = "";
 }
 </script>

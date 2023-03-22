@@ -13,10 +13,9 @@
             <v-sheet width="428" class="mx-auto pa-6">
               <v-form>
                 <v-text-field
-                  @keypress.enter="emit('addChat', createChatInput)"
-                  v-model="createChatInput"
+                  v-model="createChatUsername"
+                  @keypress.enter="emit('addChat', createChatUsername)"
                   color="blue"
-                  :loading="loading"
                   density="compact"
                   label="Username"
                   :rules="[validateAddChatInput]"
@@ -43,15 +42,15 @@
       >
         <v-hover
           v-slot="{ isHovering, props }"
-          :key="chat.date"
+          :key="chat.id"
           v-for="chat in props.chats"
-          @click="emit('chatSelect', chat)"
         >
           <v-card
             v-bind="props"
             :color="isHovering ? 'blue' : undefined"
             :text="chat.text"
-            :title="chat.author"
+            :title="chat.title"
+            @click="emit('selectChat', chat)"
           ></v-card>
         </v-hover>
       </div>
@@ -83,6 +82,7 @@ import type { Chat } from "@/types/Chat";
 import { defineProps, ref, withDefaults, defineEmits } from "vue";
 import ChatContainer from "./ChatContainer.vue";
 
+const createChatUsername = ref<string>();
 const props = withDefaults(
   defineProps<{
     chats: Chat[];
@@ -91,7 +91,8 @@ const props = withDefaults(
     chats: () => [],
   }
 );
-defineEmits<{
+const emit = defineEmits<{
+  (e: "addChat", username: string): Promise<any>;
   (e: "selectChat", chat: Chat): void;
 }>();
 const dialog = ref(false);

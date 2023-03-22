@@ -1,12 +1,13 @@
 export interface Message {
-  date: Date;
+  id: string;
   text: string;
-  author: string;
-  direction: "from" | "to";
+  ownerId: string;
+  ownerUsername: string;
+  createdAt: Date;
+  editAt: Date;
 }
 export interface Chat {
   id: string;
-  date: Date;
   text: string;
-  author: string;
+  title: string;
 }

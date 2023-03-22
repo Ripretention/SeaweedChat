@@ -1,9 +1,23 @@
 <template>
   <template v-if="isAuthorized">
-    <ChatHub />
+    <ChatHub
+      v-if="selectedChat == undefined"
+      :chats="chats"
+      @add-chat="startChatWithUser"
+      @select-chat="selectChat"
+    />
+    <ChatDialog
+      v-else
+      :id="selectedChat"
+      :messages="messages"
+      :owner-id="ownerId"
+      @load-messages="loadMessages"
+      @send-message="sendMessage"
+      @back-to-hub="() => store.commit(MutationType.RESET_SELECTED_CHAT)"
+    />
   </template>
   <template v-else>
-    <v-alert dark icon="mdi-vuetify" border="left" prominent>
+    <v-alert dark icon="mdi-vuetify" prominent>
       praesent congue erat at massa. nullam vel sem. aliquam lorem ante, dapibus
       in, viverra quis, feugiat a, tellus. proin viverra, ligula sit amet
       ultrices semper, ligula arcu tristique sapien, a accumsan nisi mauris ac
@@ -13,43 +27,41 @@
 </template>
 
 <script setup lang="ts">
+import { MutationType } from "@/store/modules/messanger";
 import ChatHub from "@/components/ChatHub.vue";
+import ChatDialog from "@/components/ChatDialog.vue";
 import store from "@/store";
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted } from "vue";
+import type { Chat } from "@/types/Chat";
+
+const ownerId = computed(() => store.state.user.id);
+const selectedChat = computed(() => store.state.messanger.selectedChat);
 const isAuthorized = computed(() => store.getters.isAuthorized);
-import { getRandomElement } from "../utils";
-import type { Message } from "@/types/Chat";
+const chats = computed(() => store.state.messanger.chats);
+const messages = computed(() => {
+  return selectedChat.value == null
+    ? []
+    : store.state.messanger.messages[selectedChat.value];
+});
 
-const dialog = ref(false);
-const previewMessage = reactive<Message[]>([]);
-const names = [
-  "John",
-  "Loid",
-  "Alex",
-  "Darwin",
-  "Olesia",
-  "Viktoria",
-  "Jack",
-  "Helga",
-];
-const families = ["Wolter", "Cenry", "McDred", "Softest", "Ivanov"];
-const date = new Date();
+onMounted(async () => {
+  await store.dispatch("loadChats");
+});
 
-for (let i = 0; i < 15; i++) {
-  previewMessage.push({
-    date,
-    author: getRandomElement(names) + " " + getRandomElement(families),
-    text: `hello, ${getRandomElement(names)}, `,
-    direction: getRandomElement(["from", "to"]),
+async function startChatWithUser(username: string) {
+  await store.dispatch("createChatWithUser", username);
+}
+async function loadMessages(params: { chatId: string; offset: number }) {
+  await store.dispatch("loadMessages", params);
+}
+async function sendMessage(chatId: string, text: string) {
+  return store.dispatch("dispatchMessage", {
+    chatId,
+    text,
   });
 }
-
-function sendMessage(text: string) {
-  previewMessage.push({
-    date: new Date(),
-    author: "You",
-    text,
-    direction: "to",
-  });
+function selectChat(chat: Chat) {
+  console.log(123);
+  store.commit(MutationType.SET_SELECTED_CHAT, chat.id);
 }
 </script>
