@@ -30,6 +30,7 @@ namespace SeaweedChat
                             .SetIsOriginAllowed(_ => true)
                             .AllowAnyMethod()
                             .AllowAnyHeader()
+                            .WithExposedHeaders(new[] { "Location" })
                             .AllowCredentials()
                     )
                 )
