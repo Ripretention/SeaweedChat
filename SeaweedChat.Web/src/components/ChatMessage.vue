@@ -8,7 +8,9 @@
     >
       <v-card-title class="d-flex flex-row">
         <strong class="text-blue text-subtitle-1">{{ props.author }}</strong>
-        <p class="text-subtitle-1 ml-2">{{ prettyDate(props.date) }}</p>
+        <p class="text-subtitle-1 ml-2">
+          {{ prettyDate(new Date(props.date)) }}
+        </p>
       </v-card-title>
       <v-card-text>{{ props.text }}</v-card-text>
     </v-card>
@@ -20,10 +22,9 @@ import { computed, defineProps } from "vue";
 import { prettyDate } from "@/utils";
 const props = defineProps<{
   author: string;
-  date: Date;
+  date: string;
   text: string;
   direction: "from" | "to";
 }>();
-console.log(props.date);
 const isFrom = computed(() => props.direction == "from");
 </script>

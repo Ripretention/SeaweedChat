@@ -25,7 +25,7 @@ export const mutations: MutationTree<MessagesState> = {
   ) {
     let { chatId, message } = params;
 
-    if (state.messages[chatId]) {
+    if (!state.messages[chatId]) {
       state.messages[chatId] = [];
     }
     if (message != null) {

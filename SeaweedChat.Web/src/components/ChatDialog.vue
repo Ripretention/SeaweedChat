@@ -10,33 +10,29 @@
     </template>
 
     <template #content>
-      <div ref="messages">
-        <div class="d-flex flex-column">
-          <ChatMessage
-            v-for="msg in props.messages"
-            :key="msg.id"
-            :author="msg.ownerUsername"
-            :text="msg.text"
-            :direction="msg.ownerId == props.ownerId ? 'from' : 'to'"
-            :date="msg.editAt ?? msg.createdAt"
-          />
-        </div>
+      <div class="d-flex flex-column" style="min-height: calc(100% - 56px)">
+        <ChatMessage
+          v-for="msg in props.messages"
+          :key="msg.id"
+          :author="msg.ownerUsername"
+          :text="msg.text"
+          :direction="msg.ownerId == props.ownerId ? 'from' : 'to'"
+          :date="msg.editAt ?? msg.createdAt"
+        />
+      </div>
 
-        <div
-          class="d-flex flex-row ma-0 pa-0"
-          style="position: sticky; bottom: 0"
-        >
-          <v-text-field
-            outlined
-            v-model="currentMessage"
-            color="blue"
-            placeholder="Write a message"
-            @keypress.enter="sendMessage"
-            append-inner-icon="mdi-send"
-            hide-details
-            bg-color="grey-lighten-2"
-          ></v-text-field>
-        </div>
+      <div style="position: sticky; bottom: 0">
+        <v-text-field
+          autofocus
+          outlined
+          v-model="currentMessage"
+          color="blue"
+          placeholder="Write a message..."
+          @keypress.enter="sendMessage"
+          append-inner-icon="mdi-send"
+          hide-details
+          bg-color="grey-lighten-2"
+        ></v-text-field>
       </div>
     </template>
   </ChatContainter>

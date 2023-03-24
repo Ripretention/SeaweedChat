@@ -21,6 +21,7 @@ public class SessionRepository : Repository, ISessionRepository
         _logger?.LogDebug($"get all session of {account}");
         if (account == null)
             return Array.Empty<Session>();
+            
         return await _context.Sessions
             .Where(s => s.Account == account)
             .ToArrayAsync();

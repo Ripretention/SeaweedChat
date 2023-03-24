@@ -27,7 +27,7 @@ public class MessageRepository : Repository, IMessageRepository
         if (chat == null)
             return Array.Empty<Message>();
         if (limit > 400)
-            throw new ArgumentException("The limit maximum is 400");
+            throw new ArgumentException("The max limit is 400");
 
         return await _context.Messages
             .AsNoTracking()
@@ -35,6 +35,7 @@ public class MessageRepository : Repository, IMessageRepository
             .OrderByDescending(c => c.CreatedAt)
             .Take(limit - Math.Abs(offset))
             .Include(m => m.Owner)
+            .Include(m => m.Chat)
             .ToListAsync();
     }
 

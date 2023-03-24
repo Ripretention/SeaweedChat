@@ -1,7 +1,7 @@
 <template>
   <template v-if="isAuthorized">
     <ChatHub
-      v-if="selectedChatId == undefined"
+      v-if="selectedChat == undefined"
       :chats="chats"
       @add-chat="startChatWithUser"
       @select-chat="selectChat"
@@ -54,17 +54,7 @@ onMounted(async () => {
 async function startChatWithUser(username: string) {
   await store.dispatch("createChatWithUser", username);
 }
-async function loadMessages(params: { chat: Chat; offset: number }) {
-  await store.dispatch("loadMessages", params);
-}
-async function sendMessage(chatId: string, text: string) {
-  return store.dispatch("sendMessage", {
-    chatId,
-    text,
-  });
-}
 function selectChat(chat: Chat) {
-  console.log(123);
   store.commit(MutationType.SET_SELECTED_CHAT, chat.id);
 }
 </script>
