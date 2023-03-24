@@ -75,12 +75,9 @@
 import { ref } from "vue";
 import router from "@/router";
 import logo from "@/assets/logo.svg";
-import ApiClient from "@/network";
 import { AxiosError } from "axios";
 import store from "@/store";
-import { MutationType } from "@/store/modules/User";
 
-const api = new ApiClient();
 const form = ref<(HTMLFormElement & { ressetValidation: () => void }) | null>(
   null
 );
@@ -101,20 +98,9 @@ async function submitRegisterForm() {
   form.value?.resetValidation();
 
   try {
-    let { data } = await api.request<{ id: string; token: string }>(
-      "accounts",
-      {
-        method: "PUT",
-        data: {
-          email: email.value,
-          password: password.value,
-          username: username.value,
-        },
-      }
-    );
-
-    await store.dispatch("login", {
+    await store.dispatch("register", {
       password: password.value,
+      username: username.value,
       email: email.value,
     });
 

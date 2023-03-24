@@ -1,15 +1,18 @@
 import * as user from "./modules/user";
-import * as messanger from "./modules/messanger";
+import * as chats from "./modules/chats";
+import * as messages from "./modules/messages";
 import { createStore } from "vuex";
 
 export interface StoreState {
   user: user.UserState;
-  messanger: messanger.MessangerState;
+  chats: chats.ChatsState;
+  messages: messages.MessagesState;
 }
 export default createStore<StoreState>({
   modules: {
     user,
-    messanger,
+    chats,
+    messages,
   },
   mutations: {},
   actions: {},

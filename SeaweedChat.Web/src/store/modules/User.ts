@@ -1,7 +1,6 @@
-import ApiClient from "@/network";
+import { signIn, signUp } from "@/api/auth";
+import type { AuthParams, AuthResult, SignUpParams } from "@/types/api/auth";
 import type { Module, ActionTree, MutationTree, GetterTree } from "vuex";
-
-const api = new ApiClient();
 
 export interface UserState {
   id?: string;
@@ -43,23 +42,15 @@ export const getters: GetterTree<UserState, any> = {
   },
 };
 export const actions: ActionTree<UserState, any> = {
-  async login({ commit }, data: { email: string; password: string }) {
-    let { id } = (
-      await api.request<{
-        id: string;
-      }>(`accounts/${data.email}`, {
-        method: "GET",
-      })
-    ).data;
-    commit(MutationType.SET_ID, id);
-
-    let { sessionToken } = (
-      await api.request<{ sessionToken: string }>(`accounts/${id}/sessions`, {
-        method: "PUT",
-        data,
-      })
-    ).data;
-    commit(MutationType.SET_TOKEN, sessionToken);
+  async register({ dispatch }, params: SignUpParams) {
+    dispatch("auth", await signUp(params));
+  },
+  async login({ dispatch }, params: AuthParams) {
+    dispatch("auth", await signIn(params.email, params.password));
+  },
+  async auth({ commit }, authData: AuthResult) {
+    commit(MutationType.SET_ID, authData.id);
+    commit(MutationType.SET_TOKEN, authData.sessionToken);
   },
 };
 

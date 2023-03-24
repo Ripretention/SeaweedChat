@@ -5,7 +5,7 @@
         <v-btn icon @click="emit('backToHub')">
           <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
-        <v-toolbar-title>{{ props.title }}</v-toolbar-title>
+        <v-toolbar-title>{{ props.chat.title }}</v-toolbar-title>
       </v-toolbar>
     </template>
 
@@ -53,17 +53,17 @@ import {
   onMounted,
   watch,
 } from "vue";
-import type { Message } from "@/types/Chat";
+import type { Chat } from "@/types/api/chat";
+import type { Message, MessagesGetParams } from "@/types/api/message";
 
 const currentMessage = ref<string | null>(null);
 const messagesForm = ref<HTMLDivElement | null>(null);
 
 const props = withDefaults(
   defineProps<{
-    id?: string;
+    chat: Chat;
     ownerId?: string;
-    messages: Message[];
-    title: string;
+    messages?: Message[];
   }>(),
   {
     messages: () => [],
@@ -71,21 +71,15 @@ const props = withDefaults(
   }
 );
 const emit = defineEmits<{
-  (
-    e: "loadMessages",
-    params: {
-      chatId: string;
-      offset: number;
-    }
-  ): Promise<void>;
-  (e: "sendMessage", chatId: string, text: string): Promise<void>;
+  (e: "loadMessages", params: MessagesGetParams): Promise<void>;
+  (e: "sendMessage", params: Record<string, any>): Promise<void>;
   (e: "backToHub"): void;
 }>();
 
 onMounted(async () => {
-  if (props.id != null)
+  if (props.chat != null)
     await emit("loadMessages", {
-      chatId: props.id,
+      chat: props.chat,
       offset: 0,
     });
 });
@@ -96,11 +90,14 @@ async function sendMessage() {
   if (
     currentMessage.value == null ||
     currentMessage.value.trim() == "" ||
-    props.id == null
+    props.chat == null
   )
     return;
 
-  await emit("sendMessage", props.id, currentMessage.value);
+  await emit("sendMessage", {
+    chat: props.chat,
+    text: currentMessage.value,
+  });
   currentMessage.value = "";
 }
 </script>

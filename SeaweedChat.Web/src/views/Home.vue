@@ -1,18 +1,18 @@
 <template>
   <template v-if="isAuthorized">
     <ChatHub
-      v-if="selectedChat == undefined"
+      v-if="selectedChatId == undefined"
       :chats="chats"
       @add-chat="startChatWithUser"
       @select-chat="selectChat"
     />
     <ChatDialog
       v-else
-      :id="selectedChat"
+      :chat="selectedChat"
       :messages="messages"
       :owner-id="ownerId"
-      @load-messages="loadMessages"
-      @send-message="sendMessage"
+      @load-messages="(params) => store.dispatch('loadMessages', params)"
+      @send-message="(params) => store.dispatch('sendMessage', params)"
       @back-to-hub="() => store.commit(MutationType.RESET_SELECTED_CHAT)"
     />
   </template>
@@ -27,21 +27,24 @@
 </template>
 
 <script setup lang="ts">
-import { MutationType } from "@/store/modules/messanger";
+import { MutationType } from "@/store/modules/chats";
 import ChatHub from "@/components/ChatHub.vue";
 import ChatDialog from "@/components/ChatDialog.vue";
 import store from "@/store";
+import type { Chat } from "@/types/api/chat";
 import { computed, onMounted } from "vue";
-import type { Chat } from "@/types/Chat";
 
 const ownerId = computed(() => store.state.user.id);
-const selectedChat = computed(() => store.state.messanger.selectedChat);
+const selectedChatId = computed(() => store.state.chats.currentSelectedChatId);
+const selectedChat = computed(() =>
+  store.state.chats.chats.find((chat) => chat.id == selectedChatId.value)
+);
 const isAuthorized = computed(() => store.getters.isAuthorized);
-const chats = computed(() => store.state.messanger.chats);
+const chats = computed(() => store.state.chats.chats);
 const messages = computed(() => {
-  return selectedChat.value == null
+  return selectedChatId.value == null
     ? []
-    : store.state.messanger.messages[selectedChat.value];
+    : store.state.messages.messages[selectedChatId.value];
 });
 
 onMounted(async () => {
@@ -51,11 +54,11 @@ onMounted(async () => {
 async function startChatWithUser(username: string) {
   await store.dispatch("createChatWithUser", username);
 }
-async function loadMessages(params: { chatId: string; offset: number }) {
+async function loadMessages(params: { chat: Chat; offset: number }) {
   await store.dispatch("loadMessages", params);
 }
 async function sendMessage(chatId: string, text: string) {
-  return store.dispatch("dispatchMessage", {
+  return store.dispatch("sendMessage", {
     chatId,
     text,
   });
