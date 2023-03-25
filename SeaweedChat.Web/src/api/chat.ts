@@ -4,9 +4,7 @@ import axios from "axios";
 export async function createChat(
   params: ChatCreateParams
 ): Promise<Chat | undefined> {
-  let response = await axios.put("chats", {
-    data: params,
-  });
+  let response = await axios.put("chats", params);
 
   let location = response.headers?.["location"];
   if (!location) {
@@ -25,11 +23,11 @@ export async function createChat(
 export async function getChats(): Promise<Chat[]> {
   return (await axios.get<{ chats: Chat[] }>("chats"))?.data?.chats ?? [];
 }
+export async function getChat(id: string) {
+  return (await axios.get<{ chat: Chat }>(`chats/${id}`))?.data?.chat;
+}
 export async function addMemberByUsername(chat: Chat, username: string) {
   await axios.put(`chats/${chat.id}/members`, {
-    baseURL: location,
-    data: {
-      username,
-    },
+    username,
   });
 }

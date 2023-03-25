@@ -1,4 +1,4 @@
-import { addMemberByUsername, createChat, getChats } from "@/api/chat";
+import { addMemberByUsername, createChat, getChat, getChats } from "@/api/chat";
 import { ChatType, type Chat } from "@/types/api/chat";
 import type { Module, ActionTree, MutationTree, GetterTree } from "vuex";
 
@@ -12,6 +12,7 @@ export const state: ChatsState = {
 };
 export enum MutationType {
   ADD_CHAT = "ADD_CHAT",
+  APPEND_CHATS = "APPEND_CHATS",
   SET_SELECTED_CHAT = "SET_SELECTED_CHAT",
   RESET_SELECTED_CHAT = "RESET_SELECTED_CHAT",
 }
@@ -21,7 +22,16 @@ export const mutations: MutationTree<ChatsState> = {
       return;
     }
 
-    state.chats.push(chat);
+    state.chats.unshift(chat);
+  },
+  [MutationType.APPEND_CHATS](state, chats: Chat[]) {
+    for (let chat of chats) {
+      if (state.chats.some((c) => c.id == chat.id)) {
+        return;
+      }
+
+      state.chats.push(chat);
+    }
   },
   [MutationType.SET_SELECTED_CHAT](state, id: string) {
     if (id != undefined && id.trim() != "") {
@@ -52,11 +62,20 @@ export const actions: ActionTree<ChatsState, any> = {
   },
   async loadChats({ commit, state }): Promise<Chat[]> {
     let chats = await getChats();
-    for (let chat of chats) {
-      commit(MutationType.ADD_CHAT, chat);
-    }
+    commit(MutationType.APPEND_CHATS, chats);
 
     return state.chats;
+  },
+  async getChat({ commit, state }, id: string) {
+    let chat = state.chats.find((c) => c.id == id);
+    if (!chat) {
+      chat = await getChat(id);
+      if (chat) {
+        commit(MutationType.ADD_CHAT, chat);
+      }
+    }
+
+    return chat;
   },
 };
 

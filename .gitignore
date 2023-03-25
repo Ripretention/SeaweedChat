@@ -3,5 +3,6 @@ bin/
 .vs
 .vscode
 *.db
+*.db-*
 node_modules/
 dist/

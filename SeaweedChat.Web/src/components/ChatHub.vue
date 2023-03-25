@@ -35,11 +35,7 @@
     </template>
 
     <template #content>
-      <div
-        v-if="props.chats.length > 0"
-        class="overflow-y-auto"
-        style="height: calc(100vh - 160px)"
-      >
+      <div v-if="props.chats.length > 0" class="d-flex flex-column">
         <v-hover
           v-slot="{ isHovering, props }"
           :key="chat.id"
@@ -78,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Chat } from "@/types/Chat";
+import type { Chat } from "@/types/api/chats";
 import { defineProps, ref, withDefaults, defineEmits } from "vue";
 import ChatContainer from "./ChatContainer.vue";
 

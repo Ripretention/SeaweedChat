@@ -1,19 +1,9 @@
 <template>
   <template v-if="isAuthorized">
     <ChatHub
-      v-if="selectedChat == undefined"
       :chats="chats"
       @add-chat="startChatWithUser"
       @select-chat="selectChat"
-    />
-    <ChatDialog
-      v-else
-      :chat="selectedChat"
-      :messages="messages"
-      :owner-id="ownerId"
-      @load-messages="(params) => store.dispatch('loadMessages', params)"
-      @send-message="(params) => store.dispatch('sendMessage', params)"
-      @back-to-hub="() => store.commit(MutationType.RESET_SELECTED_CHAT)"
     />
   </template>
   <template v-else>
@@ -28,24 +18,15 @@
 
 <script setup lang="ts">
 import { MutationType } from "@/store/modules/chats";
+import { useRouter } from "vue-router";
 import ChatHub from "@/components/ChatHub.vue";
-import ChatDialog from "@/components/ChatDialog.vue";
 import store from "@/store";
 import type { Chat } from "@/types/api/chat";
 import { computed, onMounted } from "vue";
 
-const ownerId = computed(() => store.state.user.id);
-const selectedChatId = computed(() => store.state.chats.currentSelectedChatId);
-const selectedChat = computed(() =>
-  store.state.chats.chats.find((chat) => chat.id == selectedChatId.value)
-);
 const isAuthorized = computed(() => store.getters.isAuthorized);
 const chats = computed(() => store.state.chats.chats);
-const messages = computed(() => {
-  return selectedChatId.value == null
-    ? []
-    : store.state.messages.messages[selectedChatId.value];
-});
+const router = useRouter();
 
 onMounted(async () => {
   await store.dispatch("loadChats");
@@ -55,6 +36,6 @@ async function startChatWithUser(username: string) {
   await store.dispatch("createChatWithUser", username);
 }
 function selectChat(chat: Chat) {
-  store.commit(MutationType.SET_SELECTED_CHAT, chat.id);
+  router.replace({ name: "chat", params: { id: chat.id } });
 }
 </script>

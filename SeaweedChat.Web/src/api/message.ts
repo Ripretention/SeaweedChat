@@ -7,9 +7,7 @@ import axios from "axios";
 
 export async function sendMessage(params: MessageCreateParams) {
   let response = await axios.put(`chats/${params.chat.id}/messages`, {
-    data: {
-      text: params.text,
-    },
+    text: params.text,
   });
 
   let location = response.headers?.["location"];

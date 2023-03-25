@@ -3,8 +3,13 @@ export const getRandomNumber = (min: number, max: number) =>
 export function getRandomElement<T>(arr: T[]): T {
   return arr[getRandomNumber(0, arr.length - 1)];
 }
-export function prettyDate(d: Date): string {
+export function prettyShortDate(d: Date): string {
   return [d.getHours(), d.getSeconds()]
     .map((s) => s.toString().padStart(2, "0"))
     .join(":");
+}
+export function prettyDate(d: Date): string {
+  return `${prettyShortDate(d)} ${d.getDate()}.${
+    d.getMonth() + 1
+  }.${d.getFullYear()}`;
 }

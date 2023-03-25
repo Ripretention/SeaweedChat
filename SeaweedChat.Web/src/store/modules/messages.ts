@@ -17,6 +17,7 @@ export const state: MessagesState = {
 };
 export enum MutationType {
   ADD_MESSAGE = "ADD_MESSAGE",
+  APPEND_MESSAGES = "APPEND_MESSAGES",
 }
 export const mutations: MutationTree<MessagesState> = {
   [MutationType.ADD_MESSAGE](
@@ -29,20 +30,28 @@ export const mutations: MutationTree<MessagesState> = {
       state.messages[chatId] = [];
     }
     if (message != null) {
-      state.messages[chatId].push(message);
+      state.messages[chatId].unshift(message);
     }
+  },
+  [MutationType.APPEND_MESSAGES](
+    state,
+    params: { chatId: string; messages: Message[] }
+  ) {
+    let { chatId, messages } = params;
+
+    state.messages[chatId] = (state.messages?.[chatId] ?? []).concat(messages);
   },
 };
 export const actions: ActionTree<MessagesState, any> = {
   async loadMessages({ commit }, params: MessagesGetParams) {
     let messages = await getMessages(params);
 
-    for (let message of messages) {
-      commit(MutationType.ADD_MESSAGE, {
-        chatId: params.chat.id,
-        message,
-      });
-    }
+    commit(MutationType.APPEND_MESSAGES, {
+      chatId: params.chat.id,
+      messages,
+    });
+
+    return true;
   },
   async sendMessage({ commit }, params: MessageCreateParams) {
     let message = await sendMessage(params);

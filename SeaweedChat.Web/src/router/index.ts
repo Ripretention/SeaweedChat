@@ -15,5 +15,10 @@ export default createRouter({
       path: "/login",
       component: () => import("@/views/Login.vue"),
     },
+    {
+      path: "/chats/:id",
+      name: "chat",
+      component: () => import("@/views/ChatDialog.vue"),
+    },
   ],
 });
