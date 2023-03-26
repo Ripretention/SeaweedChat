@@ -21,6 +21,26 @@ public class AccountsController : ApiController
         _encoder = encoder;
     }
 
+    [HttpGet]
+    public async Task<ActionResult<GetAccountResponse>> GetCurrentAccount()
+    {
+        Guid.TryParse(User.Identity?.Name, out var currentAccountId);
+        var account = await _accRepository.Get(currentAccountId);
+        if (account == null)
+            return BadRequest("You should be authorizated.");
+        
+        return Ok(new GetAccountResponse
+        {
+            Account = new AccountDto
+            {
+                Id = account.Id,
+                Email = account.Email,
+                Username = account.User.Username
+            },
+            Message = "Success",
+        });
+    }
+
     [HttpGet("{email}")]
     [AllowAnonymous]
     public async Task<ActionResult<GetAccountResponse>> GetAccountByEmail([FromRoute] string email)
@@ -31,8 +51,12 @@ public class AccountsController : ApiController
 
         return Ok(new GetAccountResponse 
         {
-            Id = account.Id,
-            Message = "Success",
+            Account = new AccountDto
+            {
+                Id = account.Id,
+                Username = account.User.Username
+            },
+            Message = "Success"
         });
     }
     
