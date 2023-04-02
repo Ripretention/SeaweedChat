@@ -20,6 +20,9 @@ export async function createChat(
 
   return chat;
 }
+export async function deleteChat(chat: Chat) {
+  await axios.delete(`chats/${chat.id}`);
+}
 export async function getChats(): Promise<Chat[]> {
   return (await axios.get<{ chats: Chat[] }>("chats"))?.data?.chats ?? [];
 }

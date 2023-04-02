@@ -1,4 +1,5 @@
 import { signIn, signUp } from "@/api/auth";
+import { getCurrentUser } from "@/api/user";
 import type { AuthParams, AuthResult, SignUpParams } from "@/types/api/auth";
 import type { Module, ActionTree, MutationTree, GetterTree } from "vuex";
 
@@ -51,6 +52,11 @@ export const actions: ActionTree<UserState, any> = {
   async auth({ commit }, authData: AuthResult) {
     commit(MutationType.SET_ID, authData.id);
     commit(MutationType.SET_TOKEN, authData.sessionToken);
+  },
+  async loadUser({ commit }) {
+    let user = await getCurrentUser();
+
+    commit(MutationType.SET_USERNAME, user.username);
   },
 };
 

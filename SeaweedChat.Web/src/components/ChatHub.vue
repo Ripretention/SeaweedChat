@@ -8,21 +8,50 @@
           <v-icon>mdi-plus</v-icon>
         </v-btn>
 
-        <v-dialog v-model="dialog" width="auto">
-          <v-card title="Add chat">
-            <v-sheet width="428" class="mx-auto pa-6">
-              <v-form>
-                <v-text-field
-                  v-model="createChatUsername"
-                  @keypress.enter="emit('addChat', createChatUsername)"
-                  color="blue"
-                  density="compact"
-                  label="Username"
-                  :rules="[validateAddChatInput]"
-                  append-inner-icon="mdi-plus"
-                ></v-text-field>
-              </v-form>
-            </v-sheet>
+        <v-dialog width="auto" v-model="dialog">
+          <v-card width="428" class="px-4 pt-2">
+            <v-card-title>
+              <v-row class="align-center">
+                <v-col class="v-col-2">
+                  <v-icon icon="mdi-chat-plus"></v-icon>
+                </v-col>
+                <v-col class="v-col-2">
+                  <p>Create {{ isCreateChat ? "chat" : "channel" }}</p>
+                </v-col>
+                <v-spacer></v-spacer>
+                <v-col class="v-col-auto">
+                  <v-switch
+                    v-model="isCreateChat"
+                    hide-details
+                    inset
+                    :label="isCreateChat ? 'Chat' : 'Channel'"
+                  ></v-switch>
+                </v-col>
+              </v-row>
+            </v-card-title>
+
+            <v-form class="mt-2">
+              <v-text-field
+                v-if="isCreateChat"
+                v-model="createChatUsername"
+                @keypress.enter="emit('addChat', createChatUsername)"
+                color="blue"
+                density="compact"
+                label="Username"
+                :rules="[validateAddChatInput]"
+                append-inner-icon="mdi-plus"
+              ></v-text-field>
+              <v-text-field
+                v-else
+                v-model="createChannelTitle"
+                @keypress.enter="emit('addChannel', createChannelTitle)"
+                color="blue"
+                density="compact"
+                label="Channel Title"
+                :rules="[validateAddChannelInput]"
+                append-inner-icon="mdi-plus"
+              ></v-text-field>
+            </v-form>
 
             <v-card-actions>
               <v-btn class="text-blue" block @click="dialog = false"
@@ -46,6 +75,9 @@
             :color="isHovering ? 'blue' : undefined"
             :text="chat.text"
             :title="chat.title"
+            :prepend-icon="
+              chat.type == ChatType.Chat ? 'mdi-account' : 'mdi-account-group'
+            "
             @click="emit('selectChat', chat)"
           ></v-card>
         </v-hover>
@@ -74,11 +106,13 @@
 </template>
 
 <script setup lang="ts">
-import type { Chat } from "@/types/api/chats";
+import { type Chat, ChatType } from "@/types/api/chat";
 import { defineProps, ref, withDefaults, defineEmits } from "vue";
 import ChatContainer from "./ChatContainer.vue";
 
+const isCreateChat = ref(true);
 const createChatUsername = ref<string>();
+const createChannelTitle = ref<string>();
 const props = withDefaults(
   defineProps<{
     chats: Chat[];
@@ -87,15 +121,15 @@ const props = withDefaults(
     chats: () => [],
   }
 );
-const emit = defineEmits<{
-  (e: "addChat", username: string): Promise<any>;
-  (e: "selectChat", chat: Chat): void;
-}>();
+const emit = defineEmits(["addChat", "selectChat", "addChannel"]);
 const dialog = ref(false);
 
 function validateAddChatInput(username: string) {
   return username == null || username.trim() == ""
     ? "Username is required"
     : true;
+}
+function validateAddChannelInput(title: string) {
+  return title == null || title.trim() == "" ? "Title is required" : true;
 }
 </script>

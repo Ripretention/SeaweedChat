@@ -1,6 +1,8 @@
 import type {
   Message,
   MessageCreateParams,
+  MessageDeleteParams,
+  MessageEditParams,
   MessagesGetParams,
 } from "@/types/api/message";
 import axios from "axios";
@@ -36,4 +38,19 @@ export async function getMessages(params: MessagesGetParams) {
       )
     ).data?.messages ?? []
   );
+}
+export async function deleteMessage(params: MessageDeleteParams) {
+  let response = await axios.delete(
+    `chats/${params.chatId}/messages/${params.id}`
+  );
+  return response.status === 200;
+}
+export async function editMessage(params: MessageEditParams) {
+  let response = await axios.post(
+    `chats/${params.chatId}/messages/${params.id}`,
+    {
+      text: params.text,
+    }
+  );
+  return response.status === 200;
 }

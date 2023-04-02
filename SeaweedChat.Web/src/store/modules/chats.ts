@@ -1,4 +1,10 @@
-import { addMemberByUsername, createChat, getChat, getChats } from "@/api/chat";
+import {
+  addMemberByUsername,
+  createChat,
+  deleteChat,
+  getChat,
+  getChats,
+} from "@/api/chat";
 import { ChatType, type Chat } from "@/types/api/chat";
 import type { Module, ActionTree, MutationTree, GetterTree } from "vuex";
 
@@ -13,6 +19,7 @@ export const state: ChatsState = {
 export enum MutationType {
   ADD_CHAT = "ADD_CHAT",
   APPEND_CHATS = "APPEND_CHATS",
+  REMOVE_CHAT = "REMOVE_CHAT",
   SET_SELECTED_CHAT = "SET_SELECTED_CHAT",
   RESET_SELECTED_CHAT = "RESET_SELECTED_CHAT",
 }
@@ -41,6 +48,14 @@ export const mutations: MutationTree<ChatsState> = {
   [MutationType.RESET_SELECTED_CHAT](state) {
     state.currentSelectedChatId = undefined;
   },
+  [MutationType.REMOVE_CHAT](state, chat: Chat) {
+    let index = state.chats.findIndex((c) => c.id == chat.id);
+    if (index == -1) {
+      return;
+    }
+
+    state.chats.splice(index, 1);
+  },
 };
 export const actions: ActionTree<ChatsState, any> = {
   async createChatWithUser(
@@ -60,6 +75,19 @@ export const actions: ActionTree<ChatsState, any> = {
 
     return chat;
   },
+  async createChannel({ commit }, channelTitle) {
+    let channel = await createChat({
+      title: channelTitle,
+      type: ChatType.Channel,
+    });
+
+    if (!channel) {
+      return undefined;
+    }
+
+    commit(MutationType.ADD_CHAT, channel);
+    return channel;
+  },
   async loadChats({ commit, state }): Promise<Chat[]> {
     let chats = await getChats();
     commit(MutationType.APPEND_CHATS, chats);
@@ -76,6 +104,10 @@ export const actions: ActionTree<ChatsState, any> = {
     }
 
     return chat;
+  },
+  async removeChat({ commit }, chat: Chat) {
+    await deleteChat(chat);
+    commit(MutationType.REMOVE_CHAT, chat);
   },
 };
 
