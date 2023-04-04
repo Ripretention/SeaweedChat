@@ -112,14 +112,14 @@
 
 <script setup lang="ts">
 import store from "@/store";
-import { useRoute, useRouter } from "vue-router";
+import router from "@/router";
+import { useRoute } from "vue-router";
 import ChatMessage from "@/components/ChatMessage.vue";
 import ChatContainter from "@/components/ChatContainer.vue";
 import { ref, onMounted, watch, nextTick, computed } from "vue";
 import type { Chat } from "@/types/api/chat";
 import type { Message } from "@/types/api/message";
 
-const router = useRouter();
 const routeIdParam = useRoute().params["id"];
 const chatId =
   typeof routeIdParam === "string" ? routeIdParam : routeIdParam[0];

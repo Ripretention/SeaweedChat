@@ -67,9 +67,15 @@
 <script setup lang="ts">
 import store from "@/store";
 import router from "@/router";
+import { useRoute } from "vue-router";
 import { ref } from "vue";
 import logo from "@/assets/logo.svg";
 import { AxiosError } from "axios";
+
+const redirectQuery = useRoute()?.query?.redirect;
+const redirectUrl = Array.isArray(redirectQuery)
+  ? redirectQuery?.[0]
+  : redirectQuery;
 
 const visible = ref(false);
 const password = ref<string>();
@@ -89,7 +95,7 @@ async function submitLogin() {
       email: email.value,
     });
 
-    router.push("home");
+    router.push(redirectUrl ?? "home");
   } catch (e) {
     if (e instanceof AxiosError) {
       if (e.code === AxiosError.ERR_BAD_REQUEST) {
