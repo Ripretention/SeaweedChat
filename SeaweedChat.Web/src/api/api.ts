@@ -1,5 +1,8 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
+export function isUnauthorizedError(error: any) {
+  return error instanceof AxiosError && error.response?.status === 401;
+}
 export function defineAPIUrl(url: string) {
   axios.defaults.baseURL = url;
 }
