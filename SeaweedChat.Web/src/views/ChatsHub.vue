@@ -1,7 +1,7 @@
 <template>
   <ChatContainer>
     <template #toolbar>
-      <v-toolbar title="Chats">
+      <v-toolbar color="grey-lighten-2" title="Chats">
         <v-spacer></v-spacer>
 
         <v-btn @click="dialog = true" icon>
@@ -34,7 +34,9 @@
               <v-text-field
                 v-if="isCreateChat"
                 v-model="createChatUsername"
-                @keypress.enter="emit('addChat', createChatUsername)"
+                @keypress.enter="
+                  store.dispatch('createChatWithUser', createChatUsername)
+                "
                 color="blue"
                 density="compact"
                 label="Username"
@@ -44,7 +46,9 @@
               <v-text-field
                 v-else
                 v-model="createChannelTitle"
-                @keypress.enter="emit('addChannel', createChannelTitle)"
+                @keypress.enter="
+                  store.dispatch('createChannel', createChannelTitle)
+                "
                 color="blue"
                 density="compact"
                 label="Channel Title"
@@ -64,11 +68,11 @@
     </template>
 
     <template #content>
-      <div v-if="props.chats.length > 0" class="d-flex flex-column">
+      <div v-if="chats.length > 0" class="d-flex flex-column">
         <v-hover
           v-slot="{ isHovering, props }"
           :key="chat.id"
-          v-for="chat in props.chats"
+          v-for="chat in chats"
         >
           <v-card
             v-bind="props"
@@ -78,7 +82,7 @@
             :prepend-icon="
               chat.type == ChatType.Chat ? 'mdi-account' : 'mdi-account-group'
             "
-            @click="emit('selectChat', chat)"
+            @click="selectChat(chat)"
           ></v-card>
         </v-hover>
       </div>
@@ -107,22 +111,22 @@
 
 <script setup lang="ts">
 import { type Chat, ChatType } from "@/types/api/chat";
-import { defineProps, ref, withDefaults, defineEmits } from "vue";
-import ChatContainer from "./ChatContainer.vue";
+import ChatContainer from "@/components/ChatContainer.vue";
+import store from "@/store";
+import { useRouter } from "vue-router";
+import { ref, computed, onMounted } from "vue";
+
+const router = useRouter();
 
 const isCreateChat = ref(true);
+const dialog = ref(false);
 const createChatUsername = ref<string>();
 const createChannelTitle = ref<string>();
-const props = withDefaults(
-  defineProps<{
-    chats: Chat[];
-  }>(),
-  {
-    chats: () => [],
-  }
-);
-const emit = defineEmits(["addChat", "selectChat", "addChannel"]);
-const dialog = ref(false);
+
+const chats = computed(() => store.state.chats.chats);
+onMounted(async () => {
+  await store.dispatch("loadChats");
+});
 
 function validateAddChatInput(username: string) {
   return username == null || username.trim() == ""
@@ -131,5 +135,9 @@ function validateAddChatInput(username: string) {
 }
 function validateAddChannelInput(title: string) {
   return title == null || title.trim() == "" ? "Title is required" : true;
+}
+
+function selectChat(chat: Chat) {
+  router.replace({ name: "chat", params: { id: chat.id } });
 }
 </script>

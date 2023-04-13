@@ -236,6 +236,6 @@ async function sendMessage() {
 
 async function deleteChat() {
   store.dispatch("removeChat", chat.value);
-  router.push({ path: "/" });
+  router.push({ name: "chats" });
 }
 </script>

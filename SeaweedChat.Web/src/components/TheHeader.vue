@@ -1,12 +1,6 @@
 <template>
   <v-app-bar app fixed color="teal accent-4">
-    <v-btn icon>
-      <v-icon>mdi-home</v-icon>
-    </v-btn>
-
     <v-toolbar-title>SeaweedChat</v-toolbar-title>
-
-    <v-spacer></v-spacer>
 
     <v-menu left bottom>
       <template v-slot:activator="{ props }">
