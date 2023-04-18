@@ -1,6 +1,7 @@
-using SeaweedChat.Domain.Aggregates;
-using Microsoft.AspNetCore.Mvc;
 using SeaweedChat.API.Models;
+using Microsoft.AspNetCore.Mvc;
+using SeaweedChat.Domain.Aggregates;
+using SeaweedChat.API.Hubs.Abstractions;
 namespace SeaweedChat.API.Controllers;
 
 [Route("api/v1/Chats/{ChatId:guid}/[controller]")]
@@ -8,13 +9,16 @@ public class MessagesController : ApiController
 {
     private readonly IMessageRepository _msgRepository;
     private readonly IChatRepository _chatRepository;
+    private readonly IChatHubContext? _chatHub;
     public MessagesController(
         IChatRepository chatRepository,
         IMessageRepository msgRepository,
         IUserRepository usrRepository,
+        IChatHubContext? chatHub,
         ILogger<MessagesController>? logger
     ) : base(logger, usrRepository)
     {
+        _chatHub = chatHub;
         _chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
         _msgRepository = msgRepository ?? throw new ArgumentNullException(nameof(msgRepository));
     }
@@ -43,6 +47,9 @@ public class MessagesController : ApiController
             msg.Text = request.Text;
             msg.EditAt = DateTime.Now;
         }
+
+        if (_chatHub != null)
+            await _chatHub.Edit(msg);
 
         await _chatRepository.Update();
         return Ok(new EditMessageResponse
@@ -99,6 +106,9 @@ public class MessagesController : ApiController
             Text = request.Text
         });
 
+        if (_chatHub != null)
+            await _chatHub.Send(msg);
+
         return Created(
             CurrentRequestUri + $"/{msg.Id}",
             new AddMessageResponse
@@ -122,6 +132,9 @@ public class MessagesController : ApiController
         if (msg.Owner != member.User)
             return BadRequest("Access denied");
 
+        if (_chatHub != null)
+            await _chatHub.Delete(msg);
+            
         await _msgRepository.Remove(msg);
         return Ok(new DeleteMessageResponse
         {

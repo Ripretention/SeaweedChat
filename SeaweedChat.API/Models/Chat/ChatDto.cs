@@ -1,6 +1,6 @@
 using SeaweedChat.Domain.Aggregates;
-
 namespace SeaweedChat.API.Models;
+
 public class ChatDto
 {
     public ChatDto(Chat chat)
